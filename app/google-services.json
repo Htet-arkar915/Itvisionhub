@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "366935730142",
+    "project_id": "itvisionhub-6346c",
+    "storage_bucket": "itvisionhub-6346c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:366935730142:android:6e41c8b135f1f6fcab9f4f",
+        "android_client_info": {
+          "package_name": "com.htetarkarlinn.itvisionhub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "366935730142-jnubj8bb79tis8tdnc1rj15vrkvl8ijs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0nmjz3a60OimC5BoxTBMG61nbE_pug8o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "366935730142-jnubj8bb79tis8tdnc1rj15vrkvl8ijs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">ITVisionHub</string>
+    <string name="input">Username</string>
+    <string name="input_password">Password</string>
+    <string name="register_admin"><u><i>SignUp Admin</i></u></string>
+    <string name="register_student"><u><i>SignUp Student</i></u></string>
+    <string name="itvision"><b>ITVisionHub</b></string>
+    <string name="home">Home</string>
+    <string name="class_l">Camp</string>
+    <string name="student_list">Student List</string>
+    <string name="profile">Profile</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="class_fragment">Class Fragment</string>
+    <string name="phone_number"><b>Phone Number</b></string>
+    <string name="_09770713987">your phone</string>
+    <string name="gmail">your email</string>
+    <string name="address"><b>Address</b></string>
+    <string name="university">Your Degree</string>
+    <string name="degree"><b>Degree</b></string>
+    <string name="sign_out"><b>Log out</b></string>
+    <string name="your_name">Your Name</string>
+    <string name="email"><b>Email</b></string>
+    <string name="title"><b><i>ITVisionHub</i></b></string>
+</resources>
