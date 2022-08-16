@@ -115,6 +115,9 @@ class ClassAdapter(val classList: MutableList<AddClass>, val activity: FragmentA
                 builder.setView(view)
                 b.addClass.text="Update"
                 b.edtName.hint=addClass.class_name
+                val name : Editable =addClass.class_name as Editable
+
+                b.edtName.text=name
                 b.teacherName.hint=addClass.teacher_name
                 b.classPhone.hint=addClass.phone
                 b.description.hint=addClass.description

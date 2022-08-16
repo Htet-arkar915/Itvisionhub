@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -103,7 +104,7 @@ class AddCampActivity : AppCompatActivity() {
         binding.addPhoto.setOnClickListener {
             pickImage()
         }
-        binding.stuInfo.setOnClickListener {
+        /*binding.stuInfo.setOnClickListener {
             val name= binding.campName.text.toString()
                 
                 if (students.size == 0) {
@@ -116,10 +117,7 @@ class AddCampActivity : AppCompatActivity() {
                     }
                 }
 
-        }
-        binding.addCamp.setOnClickListener {
-           // var campModel = CampModel(binding.)
-        }
+        }*/
         binding.cancelCamp.setOnClickListener {
             onBackPressed()
         }
@@ -135,6 +133,9 @@ class AddCampActivity : AppCompatActivity() {
                 if (camp_name.equals("")&& time.equals("")){
                     Toast.makeText(this, "Please enter full information", Toast.LENGTH_SHORT).show()
                 }else{
+                    binding.addCamp.isEnabled=false
+                    binding.addCamp.text="Adding"
+                    binding.cancelCamp.isEnabled=false
                     val camp=CampModel(start_date,end_date,camp_name,time,description,images)
                     UploadCamptoDatebase(camp)
                 }
@@ -149,24 +150,25 @@ class AddCampActivity : AppCompatActivity() {
         val img_link : ArrayList<Uri?> = ArrayList()
         if (img?.size==0){
             UploadData(camp)
-        }
-        for (c in img!!) {
-            val filename = UUID.randomUUID().toString()
-            val ref = FirebaseStorage.getInstance().getReference(("/camp_images/$filename"))
-            ref.putFile(c!!)
-                .addOnSuccessListener {
-                    ref.downloadUrl.addOnSuccessListener {
-                        img_link.add(it)
-                        if (img.size==img_link.size) {
-                           // Toast.makeText(this, "success", Toast.LENGTH_SHORT).show()
-                            camp.images=img_link
-                            UploadData(camp)
+        }else {
+            for (c in img!!) {
+                val filename = UUID.randomUUID().toString()
+                val ref = FirebaseStorage.getInstance().getReference(("/camp_images/$filename"))
+                ref.putFile(c!!)
+                    .addOnSuccessListener {
+                        ref.downloadUrl.addOnSuccessListener {
+                            img_link.add(it)
+                            if (img.size == img_link.size) {
+                                // Toast.makeText(this, "success", Toast.LENGTH_SHORT).show()
+                                camp.images = img_link
+                                UploadData(camp)
+                            }
                         }
                     }
-                }
-                .addOnFailureListener{
-                    
-                }
+                    .addOnFailureListener {
+
+                    }
+            }
         }
        /* camp.images=img_link
         if (img.size!=img_link.size){
@@ -205,7 +207,7 @@ class AddCampActivity : AppCompatActivity() {
                     if (!doc["role"].toString().equals("Admin")){
                         id_list.add(doc.id)
                         val user = User(doc["name"].toString(),doc["phone"].toString(),doc["email"].toString(),doc["password"].toString()
-                            ,doc["img"].toString(),doc["role"].toString(),doc["degree"].toString(),doc["camp"].toString())
+                            ,doc["img"].toString(),doc["role"].toString(),doc["degree"].toString(),doc["camp"].toString(),doc["request"].toString(),doc["noti"].toString())
                         // val user : User =doc.toObject(User::class.java)
                         students.add(user)
                     }
@@ -262,8 +264,10 @@ class AddCampActivity : AppCompatActivity() {
 
         if (result.resultCode== RESULT_OK && result.data!= null){
             images!!.clear()
+            RemoveMove()
             binding.previewImg.visibility=View.INVISIBLE
             if (result.data!!.clipData!=null) {
+                ShowMove()
                 val count = result.data!!.clipData!!.itemCount
                 for (i in 0 until count) {
                     val image_url = result.data!!.clipData!!.getItemAt(i)
@@ -279,6 +283,7 @@ class AddCampActivity : AppCompatActivity() {
             }else{
                 RemoveMove()
                 val imageurl =result.data!!.data
+                images!!.add(imageurl)
                 binding.imageSwitch.setImageURI(imageurl)
                 position=0
             }

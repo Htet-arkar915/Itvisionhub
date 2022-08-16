@@ -22,14 +22,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp">
-        <TextView
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        android:textColor="@color/black"
-        android:textSize="18dp"
-         />
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textColor="@color/black"
+                android:textSize="20dp"
+                android:textStyle="bold" />
             <ImageView
                 android:id="@+id/edit"
                 android:layout_width="25dp"
@@ -51,6 +52,7 @@
             android:layout_below="@+id/name"
             android:visibility="gone"/>-->
             <LinearLayout
+                android:layout_marginTop="8dp"
                 android:id="@+id/image_camp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -70,7 +72,7 @@
                     android:padding="2dp"
                     android:scaleType="centerCrop"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/recycle_transparent_bg"/>
+                     />
                 <LinearLayout
                     android:id="@+id/second_img_layout"
                     android:layout_width="match_parent"
@@ -81,10 +83,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="100dp"
                         android:src="@drawable/cover"
-                        android:padding="1dp"
+                        android:padding="2dp"
                         android:scaleType="centerCrop"
                         android:adjustViewBounds="true"
-                        android:background="@drawable/recycle_transparent_bg"/>
+                        />
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="100dp"
@@ -95,7 +97,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="98dp"
                             android:adjustViewBounds="true"
-                            android:background="@drawable/recycle_transparent_bg"
                             android:scaleType="centerCrop"
                             android:src="@drawable/cover" />
                         <ImageView
@@ -110,34 +111,24 @@
 
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="4dp"
-                android:background="#474646"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_below="@id/image_camp"/>
             <TextView
                 android:id="@+id/camp_peroid"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/image_camp"
                 android:layout_marginTop="8dp"
-                android:textSize="18dp"
                 android:text="Peroid"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:textColor="@color/black"
-                android:layout_below="@+id/image_camp"/>
+                android:textSize="18dp"
+                android:textStyle="bold" />
             <TextView
                 android:id="@+id/daily_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Time"
+                android:textStyle="bold"
                 android:textSize="18dp"
                 android:textColor="@color/black"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_below="@+id/camp_peroid"/>
 
             <TextView
@@ -147,8 +138,6 @@
                 android:layout_marginTop="10dp"
                 android:layout_below="@+id/daily_time"
                 android:text="Some txt"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_marginBottom="10dp"
                 android:justificationMode="inter_word"
                 android:textColor="@color/black"
@@ -175,6 +164,29 @@
                     android:background="@android:color/transparent"
                     android:backgroundTint="@color/white"
                     android:text="Student Proposals"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black" />
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/stu_req"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="2dp"
+                app:cardPreventCornerOverlap="true"
+                app:cardUseCompatPadding="true"
+                android:visibility="gone"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/camp_description">
+
+                <Button
+                    android:id="@+id/stu_request"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:backgroundTint="@color/white"
+                    android:text="Request"
                     android:textAllCaps="false"
                     android:textColor="@color/black" />
             </androidx.cardview.widget.CardView>

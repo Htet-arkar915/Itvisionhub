@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -68,9 +69,10 @@ class ProfileFragment : Fragment() {
                         Picasso.get().load(img).placeholder(R.drawable.person).fit().into(binding.circleImageView)
                         binding.pEmail.text=doc["email"].toString()
                         binding.phone.text=doc["phone"].toString()
-                       /* if (doc["role"].toString().equals("Student")){
+                        if (doc["role"].toString().equals("Admin")){
                             binding.degree.visibility=View.INVISIBLE
-                        }*/
+                            binding.degree.layoutParams=LinearLayout.LayoutParams(0,0)
+                        }
                         binding.pUniversity.text=doc["degree"].toString()
                         binding.userRole.text=doc["role"].toString()
                     }
@@ -90,6 +92,10 @@ class ProfileFragment : Fragment() {
                 val editor: SharedPreferences.Editor = sh.edit()
                 editor.remove("LoginSuccess")
                 editor.apply()
+                val sh_role : SharedPreferences= this.activity?.getSharedPreferences("Role", MODE_PRIVATE)!!
+                val edt : SharedPreferences.Editor= sh_role.edit()
+                edt.remove("role")
+                edt.apply()
                 startActivity(Intent(this.activity,LoginActivity::class.java))
                 this.activity?.finish()
             }

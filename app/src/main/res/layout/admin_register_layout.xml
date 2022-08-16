@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:background="#DDDBDB"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/transparent"
         android:orientation="vertical">
-
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:paddingBottom="16dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/close_dialog"
+                android:layout_width="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="8dp"
+                android:src="@drawable/close"/>
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_photo"
             android:layout_width="160dp"
@@ -16,8 +29,11 @@
             android:layout_gravity="center"
             android:src="@drawable/person"
             android:padding="5dp"
+            android:layout_centerInParent="true"
             android:layout_marginTop="10dp"
-            android:background="@drawable/circle_back"/>
+            app:civ_border_width="2dp"
+            />
+    </RelativeLayout>
         <androidx.cardview.widget.CardView
             android:layout_marginTop="20dp"
             app:cardElevation="2dp"
@@ -34,10 +50,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter Name"
-            android:textSize="18sp"
+            android:textSize="16dp"
             android:padding="10dp"
-            android:textColor="@color/colorPrimary"
-            android:textColorHint="@color/colorPrimary"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
             android:background="@drawable/edit_back"/>
         </androidx.cardview.widget.CardView>
         <androidx.cardview.widget.CardView
@@ -55,15 +71,16 @@
             android:id="@+id/r_phone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
+            android:textSize="16dp"
+            android:textColor="@color/black"
             android:padding="10dp"
             android:hint="Enter Phone"
-            android:textColorHint="@color/colorPrimary"
+            android:textColorHint="@color/black"
             android:background="@drawable/edit_back"
             android:inputType="number"/>
         </androidx.cardview.widget.CardView>
         <androidx.cardview.widget.CardView
+            android:id="@+id/d_card"
             android:layout_marginTop="10dp"
             app:cardElevation="2dp"
             app:cardCornerRadius="20dp"
@@ -78,11 +95,11 @@
                 android:id="@+id/register_degree"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/colorPrimary"
+                android:textSize="16dp"
+                android:textColor="@color/black"
                 android:padding="10dp"
                 android:hint="Enter Degree"
-                android:textColorHint="@color/colorPrimary"
+                android:textColorHint="@color/black"
                 android:background="@drawable/edit_back"/>
         </androidx.cardview.widget.CardView>
         <androidx.cardview.widget.CardView
@@ -100,11 +117,11 @@
             android:id="@+id/register_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
+            android:textSize="16dp"
+            android:textColor="@color/black"
             android:padding="10dp"
             android:hint="Enter Email"
-            android:textColorHint="@color/colorPrimary"
+            android:textColorHint="@color/black"
             android:background="@drawable/edit_back"/>
         </androidx.cardview.widget.CardView>
         <androidx.cardview.widget.CardView
@@ -122,29 +139,45 @@
             android:id="@+id/register_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textColor="@color/colorPrimary"
+            android:textSize="16dp"
+            android:textColor="@color/black"
             android:padding="10dp"
             android:hint="Enter Password"
-            android:textColorHint="@color/colorPrimary"
+            android:textColorHint="@color/black"
             android:background="@drawable/edit_back"
             android:inputType="textPassword"/>
         </androidx.cardview.widget.CardView>
 
 
-        <Button
-            android:id="@+id/Register"
+        <LinearLayout
+            android:id="@+id/register_lay"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="40dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:background="@drawable/loginbtn_bg">
+        <TextView
+            android:id="@+id/Register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:text="SignUp"
+            android:textStyle="bold"
             android:textAllCaps="false"
-            android:textSize="16sp"
-            android:padding="5dp"
-            android:background="@drawable/input_bg"/>
+            android:textSize="20dp"
+            />
+            <ProgressBar
+                android:id="@+id/pgb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:visibility="gone"
+                android:indeterminateTint="@color/white"
+                />
+        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

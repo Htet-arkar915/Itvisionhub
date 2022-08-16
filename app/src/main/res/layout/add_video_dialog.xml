@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@drawable/recycle_transparent_bg"
+    android:layout_height="match_parent"
+    >
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Video"
+        android:textSize="30dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginTop="40dp"
+        android:shadowColor="@color/black"
+        android:shadowDx="5"
+        android:shadowDy="5"
+        android:shadowRadius="5"
+        android:layout_centerHorizontal="true"/>
+
+    <EditText
+        android:id="@+id/video_id"
+        android:layout_width="300dp"
+        android:layout_height="45dp"
+        android:hint="Enter Video ID"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
+        android:textSize="18dp"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"/>
+
+    <EditText
+        android:id="@+id/video_title"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter Title"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        android:layout_marginTop="20dp"
+        android:textColorHint="@color/black"
+        android:layout_below="@+id/video_id"
+        android:layout_centerHorizontal="true"
+         />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="40dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="40dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/video_title">
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="40dp"
+            android:text="Cancel"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btn_add"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:text="Add"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+
+</RelativeLayout>

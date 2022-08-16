@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-parcelize'
     id 'kotlin-kapt'
 }
 
@@ -66,6 +67,13 @@ dependencies {
     implementation 'com.ouattararomuald:slider:3.0.0'
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
+    implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
+    implementation "io.reactivex.rxjava2:rxjava:2.2.8"
+
+    implementation 'com.google.code.gson:gson:2.8.9'
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
 
 

@@ -80,7 +80,7 @@
                     android:layout_gravity="right"
                     android:background="@android:color/transparent"
                     android:backgroundTint="@color/white"
-                    android:text="Add"
+                    android:text="Accept"
                     android:textAllCaps="false"
                     android:textColor="@color/black"
                     android:textSize="12dp" />

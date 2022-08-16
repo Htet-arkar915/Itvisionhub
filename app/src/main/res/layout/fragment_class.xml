@@ -8,14 +8,17 @@
     tools:context=".Fragment.ClassFragment">
 
     <!-- TODO: Update blank fragment layout -->
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/switch_to_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_marginBottom="60dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="-276dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/class_recycler"
@@ -27,6 +30,15 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <ProgressBar
+        android:id="@+id/pgb"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:indeterminateTint="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@+id/switch_to_refresh"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/switch_to_refresh" />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_class_btn"
         android:layout_width="wrap_content"

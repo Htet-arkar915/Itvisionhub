@@ -19,4 +19,9 @@
     <style name="CustomAlertDialogTran" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:windowBackground">@drawable/transparent_bg</item>
     </style>
+    <style name="WhiteCursorSearchView" parent="Widget.AppCompat.SearchView">
+        <item name="colorControlActivated">#FFFFFF</item>
+        <item name="android:colorActivatedHighlight">#fff</item>
+        <item name="android:textColorHint">#B5B2B2</item>
+    </style>
 </resources>

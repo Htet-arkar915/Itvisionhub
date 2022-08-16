@@ -22,4 +22,5 @@
     <string name="your_name">Your Name</string>
     <string name="email"><b>Email</b></string>
     <string name="title"><b><i>ITVisionHub</i></b></string>
+    <string name="todo">TODO</string>
 </resources>

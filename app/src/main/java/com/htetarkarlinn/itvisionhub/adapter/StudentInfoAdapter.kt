@@ -25,9 +25,9 @@ class StudentInfoAdapter(val students : MutableList<User>,val id_list: MutableLi
             binding.userListPhone.text=it?.phone.toString()
             binding.userListEmail.text=it?.email.toString()
             val stu=User(it?.name.toString(),it?.phone.toString(),it?.email.toString(),
-            it?.password.toString(),it?.img.toString(),it?.role.toString(),it?.degree.toString(),camp_name)
+            it?.password.toString(),it?.img.toString(),it?.role.toString(),it?.degree.toString(),camp_name,it?.request.toString(),it?.noti.toString())
             val stu_remove=User(it?.name.toString(),it?.phone.toString(),it?.email.toString(),
-                it?.password.toString(),it?.img.toString(),it?.role.toString(),it?.degree.toString(),"")
+                it?.password.toString(),it?.img.toString(),it?.role.toString(),it?.degree.toString(),"","","")
             val first_camp_name=camp_name.replace(" ","").toLowerCase()
             val second_camp_name=it?.camp.toString().replace(" ","").toLowerCase()
             if (first_camp_name.equals(second_camp_name)){
@@ -42,7 +42,7 @@ class StudentInfoAdapter(val students : MutableList<User>,val id_list: MutableLi
                     AddStudent(doc,stu)
                     check=false
                 }else{
-                    binding.addRemoveBtn.text="Add"
+                    binding.addRemoveBtn.text="Accept"
                     binding.addRemoveBtn.setTextColor(Color.BLACK)
                     RemoveStudent(doc,stu_remove)
                     check=true

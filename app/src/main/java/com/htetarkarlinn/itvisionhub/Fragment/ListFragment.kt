@@ -57,7 +57,7 @@ class ListFragment : Fragment() {
                 for (doc in it){
                     if (!doc["role"].toString().equals("Admin")){
                     val user = User(doc["name"].toString(),doc["phone"].toString(),doc["email"].toString(),doc["password"].toString()
-                    ,doc["img"].toString(),doc["role"].toString(),doc["degree"].toString(),doc["camp"].toString())
+                    ,doc["img"].toString(),doc["role"].toString(),doc["degree"].toString(),doc["camp"].toString(),doc["request"].toString(),doc["noti"].toString())
                    // val user : User =doc.toObject(User::class.java)
                     user_list.add(user)
                     }

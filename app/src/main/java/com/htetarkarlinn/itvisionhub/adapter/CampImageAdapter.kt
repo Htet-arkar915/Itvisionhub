@@ -6,12 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.view.menu.MenuView
 import androidx.recyclerview.widget.RecyclerView
 import com.htetarkarlinn.itvisionhub.R
 import com.htetarkarlinn.itvisionhub.databinding.ShowImageBinding
 import com.squareup.picasso.Picasso
 
-class CampImageAdapter(val context: Context?,val imageList: MutableList<Uri>): RecyclerView.Adapter<CampImageAdapter.myViewHolder>() {
+class CampImageAdapter(val context: Context,val imageList: MutableList<Uri>): RecyclerView.Adapter<CampImageAdapter.myViewHolder>() {
     class myViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val binding= ShowImageBinding.bind(view)
         // val binding : ShowImageBinding.bind(view)

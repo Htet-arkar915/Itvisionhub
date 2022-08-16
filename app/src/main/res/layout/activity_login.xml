@@ -6,12 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".Activities.LoginActivity"
     >
+
     <ImageView
         android:id="@+id/login_cover"
         android:layout_width="match_parent"
         android:layout_height="240dp"
         android:src="@drawable/cover" />
-
     <androidx.cardview.widget.CardView
         android:layout_below="@+id/login_cover"
         app:cardElevation="10dp"
@@ -91,16 +91,41 @@
                 />
         </androidx.cardview.widget.CardView>
 
-        <Button
-            android:id="@+id/login_btn"
+        <LinearLayout
+            android:id="@+id/login_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:background="@drawable/loginbtn_bg"
             android:layout_marginLeft="40dp"
             android:layout_marginTop="20dp"
+            android:gravity="center"
             android:layout_marginRight="40dp"
-            android:background="@drawable/input_bg"
-            android:text="Login"
-            android:textAllCaps="false" />
+            >
+
+
+            <TextView
+                android:id="@+id/login_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Login"
+                android:textColor="@color/white"
+                android:padding="6dp"
+                android:textStyle="bold"
+                android:textSize="25dp"
+                android:gravity="center"
+                android:fontFamily="@font/amethysta"
+                android:textAllCaps="false"/>
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:visibility="gone"
+                android:indeterminateTint="@color/white"/>
+
+
+        </LinearLayout>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -129,19 +154,18 @@
                 android:id="@+id/signup_admin"
                 android:layout_width="135dp"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="5dp"
+                android:layout_marginRight="10dp"
                 android:text="@string/register_admin"
                 android:textAllCaps="false"
                 android:textSize="18dp"
+                android:visibility="gone"
                 android:textColor="@color/white"
-                android:autoLink="all"
-                android:visibility="gone"/>
+                android:autoLink="all" />
 
             <TextView
                 android:id="@+id/signup_student"
                 android:layout_width="135dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
                 android:text="@string/register_student"
                 android:textAllCaps="false"
                 android:textSize="18dp"
@@ -151,5 +175,6 @@
         </LinearLayout>
     </LinearLayout>
     </androidx.cardview.widget.CardView>
+
 
 </RelativeLayout>

@@ -22,6 +22,7 @@ import com.htetarkarlinn.itvisionhub.adapter.CampAdapter
 import com.htetarkarlinn.itvisionhub.databinding.AddPostBinding
 import com.htetarkarlinn.itvisionhub.databinding.FragmentClassBinding
 import java.util.*
+import kotlin.collections.ArrayList
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -41,6 +42,7 @@ class ClassFragment : Fragment() {
     private val binding get() = _binding!!
     var camp_list: MutableList<CampModel> = ArrayList()
     var camps: MutableList<CampModel> = ArrayList()
+    var camps_id : MutableList<String> =ArrayList()
     var new_class_list: MutableList<AddClass> = ArrayList()
     var imagelist: ArrayList<Uri> = ArrayList()
     private var campAdapter: CampAdapter? = null
@@ -70,29 +72,58 @@ class ClassFragment : Fragment() {
            })*/
         CollectStudentInfo()
         CollectCamps()
-        binding.switchToRefresh.setOnRefreshListener {
-            binding.switchToRefresh.isRefreshing = true
-            CollectCamps()
-            CollectStudentInfo()
-        }
+        //if (binding.classRecycler.hasPendingAdapterUpdates())
 
+            binding.switchToRefresh.setOnRefreshListener {
+                campAdapter?.notifyDataSetChanged()
+                binding.switchToRefresh.isRefreshing = true
+                CollectStudentInfo()
+                CollectCampsForRefresh()
 
+            }
+            binding.addClassBtn.setOnClickListener {
 
-        binding.addClassBtn.setOnClickListener {
+                startActivity(Intent(this.activity, AddCampActivity::class.java))
 
-            startActivity(Intent(this.activity, AddCampActivity::class.java))
-
-        }
+            }
 
         return root
     }
 
-    private fun CollectCamps() {
+    private fun CollectCampsForRefresh() {
+        camps_id.clear()
         camp_list.clear()
         val db = Firebase.firestore
         db.collection("camp")
             .get().addOnSuccessListener {
                 for (doc in it) {
+                    camps_id.add(doc.id)
+                    val camp = CampModel(doc["start_date"].toString(),doc["end_date"].toString(),
+                        doc["camp_name"].toString(),doc["time"].toString(),doc["description"].toString(),
+                        doc["images"] as ArrayList<Uri?>?
+                    )
+                    camp_list.add(camp)
+                }
+                //new_class_list = class_list.sortedBy { it.date_time } as MutableList<AddClass>
+                //new_class_list = new_class_list.asReversed()
+                camps=camp_list.distinct().toMutableList()
+                campAdapter?.notifyDataSetChanged()
+                binding.switchToRefresh.isRefreshing=false
+            }
+            .addOnFailureListener {
+
+            }
+    }
+
+
+    private fun CollectCamps() {
+        camps_id.clear()
+        camp_list.clear()
+        val db = Firebase.firestore
+        db.collection("camp")
+            .get().addOnSuccessListener {
+                for (doc in it) {
+                    camps_id.add(doc.id)
                     val camp = CampModel(doc["start_date"].toString(),doc["end_date"].toString(),
                         doc["camp_name"].toString(),doc["time"].toString(),doc["description"].toString(),
                         doc["images"] as ArrayList<Uri?>?
@@ -110,7 +141,6 @@ class ClassFragment : Fragment() {
             }
     }
 
-
     private fun CollectStudentInfo() {
         val db= Firebase.firestore
         db.collection("users")
@@ -119,7 +149,7 @@ class ClassFragment : Fragment() {
                     if (!doc["role"].toString().equals("Admin")){
                         id_list.add(doc.id)
                         val user = User(doc["name"].toString(),doc["phone"].toString(),doc["email"].toString(),doc["password"].toString()
-                            ,doc["img"].toString(),doc["role"].toString(),doc["degree"].toString(),doc["camp"].toString())
+                            ,doc["img"].toString(),doc["role"].toString(),doc["degree"].toString(),doc["camp"].toString(),doc["request"].toString(),doc["noti"].toString())
                         // val user : User =doc.toObject(User::class.java)
                         students.add(user)
                     }
@@ -129,12 +159,17 @@ class ClassFragment : Fragment() {
             .addOnFailureListener{
 
             }
+
     }
 
     private fun showRecycle(camps: MutableList<CampModel>) {
         binding.classRecycler.layoutManager= LinearLayoutManager(this.activity)
-        campAdapter= CampAdapter(camps,students,id_list,this.activity,role)
+        campAdapter= CampAdapter(camps,camps_id,students,id_list,this.activity,role)
+        //val recyclerState= (binding.classRecycler.layoutManager as LinearLayoutManager).onSaveInstanceState()
         binding.classRecycler.adapter=campAdapter
+        binding.pgb.visibility=View.INVISIBLE
+        campAdapter!!.notifyDataSetChanged()
+        //(binding.classRecycler.layoutManager as LinearLayoutManager).onRestoreInstanceState(recyclerState)
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
