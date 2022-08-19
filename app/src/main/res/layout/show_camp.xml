@@ -156,7 +156,6 @@
                 android:layout_marginRight="10dp"
                 android:layout_centerHorizontal="true"
                 android:layout_below="@id/camp_description">
-
                 <Button
                     android:id="@+id/stu_add_remove"
                     android:layout_width="wrap_content"

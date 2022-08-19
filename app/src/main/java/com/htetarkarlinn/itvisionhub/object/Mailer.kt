@@ -22,7 +22,6 @@ object Mailer {
 
     @SuppressLint("CheckResult")
     fun sendMail(context: Context,email: String, subject: String, message: String): Completable {
-
         return Completable.create { emitter ->
 
             //configure SMTP server
@@ -63,11 +62,8 @@ object Mailer {
                 //Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                 emitter.onError(e)
             }
-
             //ending subscription
             emitter.onComplete()
         }
-
     }
-
 }

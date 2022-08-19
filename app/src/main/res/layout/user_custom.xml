@@ -6,7 +6,6 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
     <androidx.cardview.widget.CardView
-
         app:cardElevation="5dp"
         app:cardCornerRadius="5dp"
         android:background="@color/white"

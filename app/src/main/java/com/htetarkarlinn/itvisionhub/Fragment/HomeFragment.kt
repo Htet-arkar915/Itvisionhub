@@ -1,17 +1,19 @@
 package com.htetarkarlinn.itvisionhub.Fragment
 
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.ColorFilter
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.*
 import androidx.fragment.app.Fragment
-import android.widget.LinearLayout
-import android.widget.SearchView
-import android.widget.Toast
-import android.widget.Toolbar
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.appbar.AppBarLayout
@@ -44,6 +46,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     var role=""
     var camp=""
+    var search=true
     var catIdList : ArrayList<String> = arrayListOf()
     var filter_catIdList : ArrayList<String> = arrayListOf()
     private var videoCategoryAdapter : VideoCategoryAdapter?=null
@@ -79,10 +82,19 @@ class HomeFragment : Fragment() {
             showAddCategoryDialog(binding)
         }
 
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+        binding.searchView.layoutParams= Toolbar.LayoutParams(Gravity.RIGHT)
+        binding.searchView.queryHint="Search category"
+        
+        binding.searchView.setOnSearchClickListener {
+            binding.searchView.background=activity?.getDrawable(R.drawable.search_view_bg)
+
+        }
+        binding.searchView.setOnCloseListener {
+            binding.searchView.background = activity?.getDrawable(R.drawable.search_transparentbg)
+            false
+        }
+        binding.searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String?): Boolean {
-                filter_catIdList.clear()
-                filter_videoCategory.clear()
                 for (category in videoCategory){
                     if (category.name.equals(query)){
                         filter_videoCategory.add(category)
@@ -128,9 +140,6 @@ class HomeFragment : Fragment() {
                 binding.collapsLayout.title="Video Categories"
             }
         })
-
-        //binding.collapsLayout.setExpandedTitleColor(R.color.colorPrimary)
-
 
         return root
 

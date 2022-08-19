@@ -11,5 +11,6 @@
     <color name="colorPrimaryVariant">#F57C00</color>
     <color name="colorAccent">#536DFE</color>
     <color name="transparent">#85FFFFFF</color>
+    <color name="search_transparent">#00000000</color>
 
 </resources>

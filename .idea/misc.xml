@@ -51,14 +51,18 @@
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/drawable/post_edt_bg.xml" value="0.161" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/drawable/profile_bg.xml" value="0.157" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/drawable/recycle_transparent_bg.xml" value="0.165" />
+        <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/drawable/search_transparentbg.xml" value="0.1655" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/drawable/search_view_bg.xml" value="0.1655" />
+        <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/drawable/shadow.xml" value="0.1655" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/drawable/transparent_bg.xml" value="0.165" />
+        <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/layout-v23/activity_student_remainder.xml" value="0.1634963768115942" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/layout/activity_add_camp.xml" value="0.18645833333333334" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/layout/activity_edit_camp.xml" value="0.16168478260869565" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/layout/activity_login.xml" value="0.1515625" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/layout/activity_main.xml" value="0.18645833333333334" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/layout/activity_play_video.xml" value="0.1634963768115942" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/layout/activity_show.xml" value="0.16168478260869565" />
+        <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/layout/activity_student_remainder.xml" value="0.1634963768115942" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/layout/activity_verify_email.xml" value="0.16168478260869565" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/layout/add_post.xml" value="0.18645833333333334" />
         <entry key="..\:/itvh camp/ITVisionHub/app/src/main/res/layout/add_video_category.xml" value="0.16168478260869565" />

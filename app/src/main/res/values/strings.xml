@@ -6,8 +6,8 @@
     <string name="register_student"><u><i>SignUp Student</i></u></string>
     <string name="itvision"><b>ITVisionHub</b></string>
     <string name="home">Home</string>
-    <string name="class_l">Camp</string>
-    <string name="student_list">Student List</string>
+    <string name="class_l">Camps</string>
+    <string name="student_list">Students List</string>
     <string name="profile">Profile</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

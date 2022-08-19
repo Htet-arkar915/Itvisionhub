@@ -11,6 +11,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.htetarkarlinn.itvisionhub.Activities.StudentRemainder
 import com.htetarkarlinn.itvisionhub.Models.User
 import com.htetarkarlinn.itvisionhub.R
 import com.htetarkarlinn.itvisionhub.databinding.StudentInfoBinding
@@ -67,6 +68,11 @@ class StudentAdapter(val userList: MutableList<User>,val activity: FragmentActiv
             }
             b.gmailSend.setOnClickListener {
                 sendEmail()
+            }
+            b.sendReminder.setOnClickListener {
+                var intent=Intent(itemView.context,StudentRemainder::class.java)
+                intent.putExtra("email",student?.email )
+                itemView.context.startActivity(intent)
             }
             builder.show()
         }

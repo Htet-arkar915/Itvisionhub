@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activities.StudentRemainder">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/d_lay"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_alignParentEnd="true"
+        android:visibility="visible"
+        android:elevation="@dimen/cardview_compat_inset_shadow"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="5dp"
+        app:cardPreventCornerOverlap="true"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.401">
+
+        <EditText
+            android:id="@+id/reminderTxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:gravity="top"
+            android:hint="Write reminder here"
+            android:inputType="textMultiLine"
+            android:lineHeight="30dp"
+            android:paddingLeft="10dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:textSize="18sp" />
+    </androidx.cardview.widget.CardView>
+
+    <LinearLayout
+        android:id="@+id/sendReminder"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/loginbtn_bg"
+        android:gravity="center"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:orientation="horizontal"
+        android:elevation="@dimen/cardview_default_elevation"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/d_lay"
+        tools:layout_editor_absoluteX="40dp">
+
+
+
+        <TextView
+            android:id="@+id/send_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/amethysta"
+            android:gravity="center"
+            android:padding="6dp"
+            android:text="Send Reminder"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="25dp"
+            android:textStyle="bold" />
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:indeterminateTint="@color/white"
+            android:visibility="gone" />
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/studentMail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingStart="8dp"
+        android:text="To"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        android:layout_margin="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/d_lay"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.746" />
+
+    <TextView
+        android:id="@+id/mailFrom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="From : Admin"
+        android:textSize="20dp"
+        android:layout_margin="8dp"
+        android:paddingStart="8dp"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toTopOf="@+id/studentMail"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

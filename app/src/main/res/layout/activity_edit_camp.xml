@@ -335,13 +335,13 @@
         android:layout_below="@id/time_la"
         android:layout_alignParentEnd="true"
         android:layout_marginLeft="8dp"
+        android:layout_marginTop="20dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="5dp"
         android:visibility="visible"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="5dp"
-        android:layout_marginTop="20dp"
         app:cardPreventCornerOverlap="true"
         app:cardUseCompatPadding="true">
 

@@ -12,7 +12,8 @@
         android:layout_margin="8dp"
         android:background="@color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        >
 
         <RelativeLayout
             android:layout_width="match_parent"
