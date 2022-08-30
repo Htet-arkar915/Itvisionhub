@@ -1,5 +1,6 @@
 package com.htetarkarlinn.itvisionhub.Activities
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -10,6 +11,8 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -23,11 +26,13 @@ import com.google.firebase.storage.FirebaseStorage
 import com.htetarkarlinn.itvisionhub.MainActivity
 import com.htetarkarlinn.itvisionhub.Models.CampModel
 import com.htetarkarlinn.itvisionhub.Models.User
+import com.htetarkarlinn.itvisionhub.Models.VeryfyUser
 import com.htetarkarlinn.itvisionhub.R
 import com.htetarkarlinn.itvisionhub.`object`.Mailer
 import com.htetarkarlinn.itvisionhub.databinding.ActivityVerifyEmailBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.text.SimpleDateFormat
 import java.util.*
 
 class VerifyEmailActivity : AppCompatActivity() {
@@ -35,7 +40,8 @@ class VerifyEmailActivity : AppCompatActivity() {
     lateinit var user: User
     var code=0
     var img : Uri? =null
-    var enter_code=""
+    var enterCode=""
+    var verifyId=""
     lateinit var timer: CountDownTimer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +52,16 @@ class VerifyEmailActivity : AppCompatActivity() {
         code=intent.getIntExtra("code",1)
         img= intent.getStringExtra("img")?.toUri()
         binding.email.text=user.email
-
+        val dbFb =Firebase.firestore
+        val verifyUser=VeryfyUser(user.email,getCurrentDate())
+        dbFb.collection("VerifyUser")
+            .add(verifyUser)
+            .addOnSuccessListener {
+                verifyId=it.id
+                Log.d("SS","Success")
+            }.addOnFailureListener {
+                Log.d("FF",it.message.toString())
+            }
         timer = object:CountDownTimer(180000,1000){
             override fun onTick(millisUntilFinished: Long) {
                 binding.count.text="Time remaining "+(millisUntilFinished/1000)/60 + ":" + (millisUntilFinished/1000)%60
@@ -89,8 +104,11 @@ class VerifyEmailActivity : AppCompatActivity() {
         }
         binding.verifyLayout.setOnClickListener {
             //Toast.makeText(this, "${img}", Toast.LENGTH_SHORT).show()
-            enter_code=binding.enterCode.text.toString()
-            if (enter_code.equals("")) {
+            enterCode=binding.enterCode.text.toString()
+            if (enterCode.equals("")&&enterCode.length<6) {
+               /* Handler(Looper.getMainLooper()).postDelayed({
+                                                            Mailer.sendMail(this,user.email,"Testing","No Code Click")
+                },10000)*/
                 Toast.makeText(this, "Please Enter Code", Toast.LENGTH_SHORT).show()
             } else {
             val param = LinearLayout.LayoutParams(
@@ -101,7 +119,7 @@ class VerifyEmailActivity : AppCompatActivity() {
             binding.progressBar.visibility = View.VISIBLE
             binding.verifyBtn.text = "Verifying"
             binding.verifyLayout.isEnabled = false
-            if (enter_code.toInt()==code) {
+            if (enterCode.toInt()==code) {
                 
                 val auth=Firebase.auth
                 auth.createUserWithEmailAndPassword(user.email,user.password)
@@ -152,12 +170,7 @@ class VerifyEmailActivity : AppCompatActivity() {
 
                             StoreInShareUser(user.email,user.password)
                             storeRole(user.role)
-                            startActivity(Intent(this, MainActivity::class.java))
-                            Log.d(
-                                ContentValues.TAG,
-                                "DocumentSnapshot added with ID: ${documentReference.id}"
-                            )
-                            finish()
+                            DeleteVerify(verifyId)
 
                         }
                         .addOnFailureListener { e ->
@@ -189,12 +202,7 @@ class VerifyEmailActivity : AppCompatActivity() {
 
                 StoreInShareUser(user.email,user.password)
                 storeRole(user.role)
-                startActivity(Intent(this, MainActivity::class.java))
-                Log.d(
-                    ContentValues.TAG,
-                    "DocumentSnapshot added with ID: ${documentReference.id}"
-                )
-                finish()
+                DeleteVerify(verifyId)
 
             }
             .addOnFailureListener { e ->
@@ -245,5 +253,28 @@ class VerifyEmailActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+    @SuppressLint("SimpleDateFormat")
+    fun getCurrentDate():String{
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        return sdf.format(Date())
+    }
+    private fun DeleteVerify(userId : String){
+        val fb=Firebase.firestore
+        fb.collection("VerifyUser")
+            .document(userId)
+            .delete()
+            .addOnSuccessListener {
+                startActivity(Intent(this, MainActivity::class.java))
+                Log.d(
+                    ContentValues.TAG,
+                    "DocumentSnapshot added with ID: ${it.toString()}"
+                )
+                finish()
+            }
+            .addOnFailureListener {
+
+            }
+
     }
 }

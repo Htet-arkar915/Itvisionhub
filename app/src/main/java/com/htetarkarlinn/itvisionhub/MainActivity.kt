@@ -1,5 +1,6 @@
 package com.htetarkarlinn.itvisionhub
 
+import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
@@ -20,7 +21,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.htetarkarlinn.itvisionhub.Models.User
+import com.htetarkarlinn.itvisionhub.`object`.Mailer
 import com.htetarkarlinn.itvisionhub.databinding.ActivityMainBinding
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,6 +35,7 @@ class MainActivity : AppCompatActivity() {
      var password=""
     var role=""
     var userid=""
+    var todayDateTime=""
     var idlist : MutableList<String> = arrayListOf()
     var user_list : MutableList<User> = arrayListOf()
     lateinit var notificationChannel: NotificationChannel
@@ -55,7 +62,9 @@ class MainActivity : AppCompatActivity() {
          email=pre.getString("email","string").toString()
         val prefer :SharedPreferences=getSharedPreferences("Role", MODE_PRIVATE)
         role=prefer.getString("role","string").toString()
-
+        todayDateTime=getCurrentDate()
+        //Toast.makeText(this, todayDateTime, Toast.LENGTH_SHORT).show()
+        sendRecommendMail()
         if (role.equals("Admin") ){
             binding.navView.visibility=View.VISIBLE
             binding.stunavView.visibility= View.INVISIBLE
@@ -118,6 +127,54 @@ class MainActivity : AppCompatActivity() {
 
         //Toast.makeText(this, role, Toast.LENGTH_SHORT).show()
 
+    }
+
+    private fun sendRecommendMail() {
+        var delete_id=""
+        val fb= Firebase.firestore
+        fb.collection("VerifyUser")
+            .get()
+            .addOnSuccessListener {
+                for (u in it){
+                    delete_id=u.id
+                    val date_time=u.get("dateTime").toString()
+                    val date= date_time.substringBefore("T")
+                    //  Toast.makeText(itemView.context, min_sec, Toast.LENGTH_SHORT).show()
+                    val year=date.substringBefore("-").toInt()
+                    val month_day=date.substringAfter("-")
+                    val month=month_day.substringBefore("-").toInt()
+                    val day=month_day.substringAfter("-").toInt()
+
+                    val today_date= todayDateTime.substringBefore("T")
+                    val today_time=todayDateTime.substringAfter("T")
+                    val today_hr=today_time.substringBefore(":")
+                    //  Toast.makeText(itemView.context, min_sec, Toast.LENGTH_SHORT).show()
+                    val today_year=today_date.substringBefore("-").toInt()
+                    val today_month_day=today_date.substringAfter("-")
+                    val today_month=today_month_day.substringBefore("-").toInt()
+                    val today_day=today_month_day.substringAfter("-").toInt()
+                    //Toast.makeText(this, "${today_hr} ${hr}", Toast.LENGTH_SHORT).show()
+                    if (today_year==year && today_month==month && today_day <= day+3 && today_day > day && today_hr.toInt() >=8){
+                       // Toast.makeText(this, "condition true", Toast.LENGTH_SHORT).show()
+                        Mailer.sendMail(this,u.get("email").toString(),"Verify Email Recommendation","Your verification on ${date} is not successful. So we recommend to verify your email")
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({
+
+                            },{
+
+                            })
+                        fb.collection("VerifyUser")
+                            .document(delete_id)
+                            .delete()
+                    }else if (today_year>=year && today_month>=month && today_day > day+3 && today_day > day){
+                       // Toast.makeText(this, "wrong", Toast.LENGTH_SHORT).show()
+                        fb.collection("VerifyUser")
+                            .document(delete_id)
+                            .delete()
+                    }
+                }
+            }
     }
 
     private fun ShowNoti(userList: MutableList<User>, idlist: MutableList<String>) {
@@ -203,6 +260,12 @@ class MainActivity : AppCompatActivity() {
         editor.apply()
     }
 
+   /* @SuppressLint("SimpleDateFormat")
+    fun getCurrentDate():String{
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        return sdf.format(Date())
+    }*/
+   private fun getCurrentDate() = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Date())
 
 
 }
