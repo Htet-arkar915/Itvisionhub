@@ -6,13 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
-import android.media.RingtoneManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
+import android.window.OnBackInvokedDispatcher
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.ui.AppBarConfiguration
@@ -20,13 +19,8 @@ import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.htetarkarlinn.itvisionhub.Models.User
-import com.htetarkarlinn.itvisionhub.`object`.Mailer
+import com.htetarkarlinn.itvisionhub.models.User
 import com.htetarkarlinn.itvisionhub.databinding.ActivityMainBinding
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import java.text.SimpleDateFormat
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,13 +28,11 @@ class MainActivity : AppCompatActivity() {
      var email=""
      var password=""
     var role=""
-    var userid=""
-    var todayDateTime=""
-    var idlist : MutableList<String> = arrayListOf()
-    var user_list : MutableList<User> = arrayListOf()
-    lateinit var notificationChannel: NotificationChannel
+    private var idList : MutableList<String> = arrayListOf()
+    private var userListUpdate : MutableList<User> = arrayListOf()
+    private lateinit var notificationChannel: NotificationChannel
     lateinit var notificationManager: NotificationManager
-    lateinit var builder: Notification.Builder
+    private lateinit var builder: Notification.Builder
     private val channelId = "12345"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,13 +54,20 @@ class MainActivity : AppCompatActivity() {
          email=pre.getString("email","string").toString()
         val prefer :SharedPreferences=getSharedPreferences("Role", MODE_PRIVATE)
         role=prefer.getString("role","string").toString()
-        todayDateTime=getCurrentDate()
         //Toast.makeText(this, todayDateTime, Toast.LENGTH_SHORT).show()
-        sendRecommendMail()
-        if (role.equals("Admin") ){
+       /* val mainLooper = Looper.getMainLooper()
+        GlobalScope.launch {
+            Toast.makeText(applicationContext, "waiting time", Toast.LENGTH_SHORT).show()
+            sendRecommendMail()
+            Handler(mainLooper).post {
+                Toast.makeText(applicationContext, "Finish Job", Toast.LENGTH_SHORT).show()
+            }
+        }*/
+        //sendRecommendMail()
+        if (role == "Admin"){
             binding.navView.visibility=View.VISIBLE
             binding.stunavView.visibility= View.INVISIBLE
-            var navView: BottomNavigationView = binding.navView
+            val navView: BottomNavigationView = binding.navView
             val navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main)
             navController.setGraph(R.navigation.mobile_navigation)
             val appBarConfiguration = AppBarConfiguration.Builder(
@@ -79,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             navView.isItemHorizontalTranslationEnabled
             removeToolbar(navController)
             //Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show()
-            // ShowNoti(user_list,idlist)
+            // showNotification(userListUpdate,idList)
         }else{
             binding.navView.visibility=View.INVISIBLE
             binding.stunavView.visibility= View.VISIBLE
@@ -101,12 +100,12 @@ class MainActivity : AppCompatActivity() {
                     val user = User(doc["name"].toString(),doc["phone"].toString(),doc["email"].toString(),doc["password"].toString()
                         ,doc["img"].toString(),doc["role"].toString(),doc["degree"].toString(),doc["camp"].toString(),doc["request"].toString(),doc["noti"].toString())
 
-                    if (!user.role.toString().equals("Admin")){
-                        user_list.add(user)
-                        idlist.add(doc.id.toString())
+                    if (user.role != "Admin"){
+                        userListUpdate.add(user)
+                        idList.add(doc.id)
                     }
                     if (doc["email"]?.equals(email)!! && doc["password"]?.equals(password)!!){
-                        StoreInShareUser(doc["role"].toString(),doc.id.toString(),doc["camp"].toString())
+                        storeInShareUser(doc["role"].toString(), doc.id,doc["camp"].toString())
 
 
                     }
@@ -115,8 +114,8 @@ class MainActivity : AppCompatActivity() {
                 val p : SharedPreferences =getSharedPreferences("Role",
                     MODE_PRIVATE)
                 if (p.getString("role","").equals("Admin")){
-                    ShowNoti(user_list,idlist)
-                    //Toast.makeText(this, user_list.size.toString(), Toast.LENGTH_SHORT).show()
+                    showNotification(userListUpdate,idList)
+                    //Toast.makeText(this, userListUpdate.size.toString(), Toast.LENGTH_SHORT).show()
                 }
 
             }
@@ -129,62 +128,16 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun sendRecommendMail() {
-        var delete_id=""
-        val fb= Firebase.firestore
-        fb.collection("VerifyUser")
-            .get()
-            .addOnSuccessListener {
-                for (u in it){
-                    delete_id=u.id
-                    val date_time=u.get("dateTime").toString()
-                    val date= date_time.substringBefore("T")
-                    //  Toast.makeText(itemView.context, min_sec, Toast.LENGTH_SHORT).show()
-                    val year=date.substringBefore("-").toInt()
-                    val month_day=date.substringAfter("-")
-                    val month=month_day.substringBefore("-").toInt()
-                    val day=month_day.substringAfter("-").toInt()
 
-                    val today_date= todayDateTime.substringBefore("T")
-                    val today_time=todayDateTime.substringAfter("T")
-                    val today_hr=today_time.substringBefore(":")
-                    //  Toast.makeText(itemView.context, min_sec, Toast.LENGTH_SHORT).show()
-                    val today_year=today_date.substringBefore("-").toInt()
-                    val today_month_day=today_date.substringAfter("-")
-                    val today_month=today_month_day.substringBefore("-").toInt()
-                    val today_day=today_month_day.substringAfter("-").toInt()
-                    //Toast.makeText(this, "${today_hr} ${hr}", Toast.LENGTH_SHORT).show()
-                    if (today_year==year && today_month==month && today_day <= day+3 && today_day > day && today_hr.toInt() >=8){
-                       // Toast.makeText(this, "condition true", Toast.LENGTH_SHORT).show()
-                        Mailer.sendMail(this,u.get("email").toString(),"Verify Email Recommendation","Your verification on ${date} is not successful. So we recommend to verify your email")
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe({
-
-                            },{
-
-                            })
-                        fb.collection("VerifyUser")
-                            .document(delete_id)
-                            .delete()
-                    }else if (today_year>=year && today_month>=month && today_day > day+3 && today_day > day){
-                       // Toast.makeText(this, "wrong", Toast.LENGTH_SHORT).show()
-                        fb.collection("VerifyUser")
-                            .document(delete_id)
-                            .delete()
-                    }
-                }
-            }
-    }
-
-    private fun ShowNoti(userList: MutableList<User>, idlist: MutableList<String>) {
+    @SuppressLint("ResourceAsColor", "UnspecifiedImmutableFlag")
+    private fun showNotification(userList: MutableList<User>, idListNotification: MutableList<String>) {
         for (user in userList){
             //Toast.makeText(this, user.noti.toString(), Toast.LENGTH_SHORT).show()
-            if (user.noti.toString().lowercase().equals("yes")){
-                val intent = Intent(this, LauncherActivity::class.java)
+            if (user.noti.lowercase() == "yes"){
+                val intent = Intent(this, MainActivity::class.java)
                 val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-                var userid=idlist[user_list.indexOf(user)]
-                var alarm=RingtoneManager.getActualDefaultRingtoneUri(this,RingtoneManager.TYPE_NOTIFICATION)
+                val userid=idListNotification[userListUpdate.indexOf(user)]
+
                 val description="${user.name} want to attend in ${user.request}"
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     notificationChannel = NotificationChannel(channelId, description, NotificationManager.IMPORTANCE_HIGH)
@@ -195,19 +148,18 @@ class MainActivity : AppCompatActivity() {
                         .setContentText(description)
                         .setColor(R.color.colorPrimary)
                         .setSmallIcon(R.drawable.acc_profile)
-                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                        .setSound(alarm)
+                        .setVisibility(Notification.VISIBILITY_PUBLIC)
                         .setContentIntent(pendingIntent)
                     //builder.setVibrate(new long[0]);
                 }
                 notificationManager.notify(12345, builder.build())
-                UpdateForNoti(userid)
+                updateForNotification(userid)
 
             }
         }
     }
 
-    private fun UpdateForNoti(userid: String) {
+    private fun updateForNotification(userid: String) {
         val db= Firebase.firestore
         db.collection("users")
             .document(userid)
@@ -220,16 +172,16 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    override fun onBackPressed() {
+    /*override fun onBackPressed() {
         super.onBackPressed()
         finishAffinity()
+    }*/
+    override fun getOnBackInvokedDispatcher(): OnBackInvokedDispatcher {
+        finishAffinity()
+        return super.getOnBackInvokedDispatcher()
+
     }
-    private  fun loadFragment(fragment: androidx.fragment.app.Fragment){
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.nav_host_fragment_activity_main,fragment)
-        transaction.addToBackStack(null)
-        transaction.commit()
-    }
+
     private fun removeToolbar(navController: NavController) {
         navController.addOnDestinationChangedListener{ _,destination ,_ ->
             when(destination.id){
@@ -249,7 +201,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private fun StoreInShareUser(role: String, id: String,camp : String) {
+    private fun storeInShareUser(role: String, id: String,camp : String) {
 
         val preferences : SharedPreferences =getSharedPreferences("Role",
             MODE_PRIVATE)
@@ -265,7 +217,6 @@ class MainActivity : AppCompatActivity() {
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
         return sdf.format(Date())
     }*/
-   private fun getCurrentDate() = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(Date())
 
 
 }

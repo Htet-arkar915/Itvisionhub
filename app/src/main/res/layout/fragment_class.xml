@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#E5E4E6"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".Fragment.ClassFragment">
+    tools:context=".fragment.ClassFragment">
 
     <!-- TODO: Update blank fragment layout -->
 

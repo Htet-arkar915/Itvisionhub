@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#272727"
-    tools:context=".Activities.PlayVideoActivity">
+    tools:context=".activities.PlayVideoActivity">
 
     <WebView
         android:id="@+id/video_play"

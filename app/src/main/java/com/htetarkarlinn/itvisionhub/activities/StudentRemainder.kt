@@ -1,8 +1,8 @@
-package com.htetarkarlinn.itvisionhub.Activities
+package com.htetarkarlinn.itvisionhub.activities
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Html
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -15,6 +15,7 @@ class StudentRemainder : AppCompatActivity() {
     lateinit var binding: ActivityStudentRemainderBinding
     var email=""
     var reminderLetter=""
+    @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=ActivityStudentRemainderBinding.inflate(layoutInflater)
@@ -27,7 +28,7 @@ class StudentRemainder : AppCompatActivity() {
         binding.sendReminder.setOnClickListener {
 
             reminderLetter=binding.reminderTxt.text.toString()
-            if (reminderLetter.equals("")){
+            if (reminderLetter == ""){
                 Toast.makeText(this, "Please write something", Toast.LENGTH_SHORT).show()
             }else {
                 binding.progressBar.visibility=View.VISIBLE
@@ -52,7 +53,7 @@ class StudentRemainder : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             android.R.id.home -> {
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
                 return true
             }
         }

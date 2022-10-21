@@ -7,11 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.htetarkarlinn.itvisionhub.Activities.ShowActivity
-import com.htetarkarlinn.itvisionhub.Models.VideoCategory
+import com.htetarkarlinn.itvisionhub.activities.ShowActivity
+import com.htetarkarlinn.itvisionhub.models.VideoCategory
 import com.htetarkarlinn.itvisionhub.R
 import com.htetarkarlinn.itvisionhub.databinding.VideoCategoryBinding
-import java.io.Serializable
 
 class VideoCategoryAdapter(val activity: Context?,val videoCategory: ArrayList<VideoCategory>,val idList : ArrayList<String>,val role : String,val camp : String):RecyclerView.Adapter<VideoCategoryAdapter.ViewHolder>() {
     class ViewHolder (itemView : View): RecyclerView.ViewHolder(itemView){
@@ -31,7 +30,7 @@ class VideoCategoryAdapter(val activity: Context?,val videoCategory: ArrayList<V
         }
        // Toast.makeText(activity, camp, Toast.LENGTH_SHORT).show()
         holder.itemView.setOnClickListener {
-            if (role.equals("Student") && videoCategory[position].forShow.equals("private") && camp.equals("")){
+            if (role == "Student" && videoCategory[position].forShow.equals("private") && camp == ""){
                 Toast.makeText(activity, "This category is private.So you need to attend camp", Toast.LENGTH_SHORT).show()
             }else {
                 //Toast.makeText(activity, "${idList[position]}", Toast.LENGTH_SHORT).show()

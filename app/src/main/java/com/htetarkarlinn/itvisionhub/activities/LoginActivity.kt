@@ -1,116 +1,132 @@
-package com.htetarkarlinn.itvisionhub.Activities
+package com.htetarkarlinn.itvisionhub.activities
 import android.Manifest
-import android.app.Activity
+import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.*
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
-import androidx.core.content.edit
-import androidx.core.view.isVisible
-import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import com.htetarkarlinn.itvisionhub.MainActivity
-import com.htetarkarlinn.itvisionhub.Models.User
+import com.htetarkarlinn.itvisionhub.models.User
 import com.htetarkarlinn.itvisionhub.R
 import com.htetarkarlinn.itvisionhub.`object`.Mailer
 import com.htetarkarlinn.itvisionhub.databinding.ActivityLoginBinding
 import com.htetarkarlinn.itvisionhub.databinding.AdminRegisterLayoutBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.io.InputStream
 import java.io.Serializable
-import java.net.URI
 import java.util.*
 
 class LoginActivity : AppCompatActivity()  {
     var uri : Uri? = null
     private lateinit var b :AdminRegisterLayoutBinding
     private lateinit var binding: ActivityLoginBinding
-    var email_list : MutableList<String> =ArrayList()
+    var emailList : MutableList<String> =ArrayList()
     var role = ""
+    @RequiresApi(Build.VERSION_CODES.M)
+    @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportActionBar?.hide()
 
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        //window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        //window.addFlags(WindowManager.LayoutParams.MATCH_PARENT)
+        if (isNetworkConnected(this)){
 
-        CollectUserEmail()
+            collectUserEmail()
+        }else{
+            Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show()
+        }
         binding.loginLayout.setOnClickListener{
+            if (isNetworkConnected(this)) {
+                val email = binding.loginName.text.toString()
+                val password = binding.loginPass.text.toString()
+                if (email == "" && password == "") {
+                    Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    val param = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    binding.progressBar.layoutParams = param
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.loginBtn.text = "Checking"
+                    binding.loginLayout.isEnabled = false
+                    val auth = Firebase.auth
+                    if (isNetworkConnected(this)) {
+                        auth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(this) { task ->
+                                if (task.isSuccessful) {
 
-            val email=binding.loginName.text.toString()
-            val password=binding.loginPass.text.toString()
-            if (email.equals("") && password.equals("")){
-                Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
-            }else {
-                val param = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-                binding.progressBar.layoutParams=param
-                binding.progressBar.visibility = View.VISIBLE
-                binding.loginBtn.text = "Checking"
-                binding.loginLayout.isEnabled = false
-                val auth = Firebase.auth
-                // Toast.makeText(this, binding.loginName.text, Toast.LENGTH_SHORT).show()
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this) { task ->
-                        if (task.isSuccessful) {
-
-                            val fs = Firebase.firestore
-                            fs.collection("users")
-                                .get().addOnSuccessListener {
-                                    for (doc in it) {
-                                        if (doc["email"].toString()
-                                                .equals(email) && doc["password"].toString()
-                                                .equals(password)
-                                        ) {
-                                            role = doc["role"].toString()
-                                            storeRole(role)
-                                            StoreInShareUser(email, password)
-                                            startActivity(Intent(this, MainActivity::class.java))
-                                            // Sign in success, update UI with the signed-in user's information
-                                            Log.d(TAG, "signInWithEmail:success")
-                                            val user = auth.currentUser
-                                            // updateUI(user)
-                                            finish()
+                                    val fs = Firebase.firestore
+                                    fs.collection("users")
+                                        .get().addOnSuccessListener {
+                                            for (doc in it) {
+                                                if (doc["email"].toString() == email && doc["password"].toString() == password
+                                                ) {
+                                                    role = doc["role"].toString()
+                                                    storeRole(role)
+                                                    storeInShareUser(email, password)
+                                                    startActivity(
+                                                        Intent(
+                                                            this,
+                                                            MainActivity::class.java
+                                                        )
+                                                    )
+                                                    // Sign in success, update UI with the signed-in user's information
+                                                    Log.d(TAG, "signInWithEmail:success")
+                                                    val user = auth.currentUser
+                                                    // updateUI(user)
+                                                    finish()
+                                                }
+                                            }
                                         }
-                                    }
-                                }
 
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            binding.progressBar.visibility = View.INVISIBLE
-                            binding.loginBtn.text = "Login"
-                            binding.loginLayout.isEnabled = true
-                            binding.progressBar.layoutParams=LinearLayout.LayoutParams(0,0)
-                            Log.w(TAG, "signInWithEmail:failure", task.exception)
-                            CheckNework()
-                            //updateUI(null)
-                        }
+                                } else {
+                                    // If sign in fails, display a message to the user.
+                                    binding.progressBar.visibility = View.INVISIBLE
+                                    binding.loginBtn.text = "Login"
+                                    binding.loginLayout.isEnabled = true
+                                    binding.progressBar.layoutParams =
+                                        LinearLayout.LayoutParams(0, 0)
+                                    Log.w(TAG, "signInWithEmail:failure", task.exception)
+
+                                }
+                            }
+                        //Toast.makeText(this, role, Toast.LENGTH_SHORT).show()
+                    }else{
+                        Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show()
+                        binding.progressBar.visibility = View.INVISIBLE
+                        binding.loginBtn.text = "Login"
+                        binding.loginLayout.isEnabled = true
+                        binding.progressBar.layoutParams =
+                            LinearLayout.LayoutParams(0, 0)
                     }
-                //Toast.makeText(this, role, Toast.LENGTH_SHORT).show()
+                }
+            }else{
+                Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show()
             }
         }
         binding.signupAdmin.setOnClickListener{
@@ -148,7 +164,7 @@ class LoginActivity : AppCompatActivity()  {
                 if (password.length<6){
                     Toast.makeText(this, "Password must be 6 digit", Toast.LENGTH_SHORT).show()
                 }else {
-                    if (name == "" || phone == "" || email == "" || password == "") {
+                    if (name == "" || phone == "" || email == "") {
                         Toast.makeText(this, "Please Enter Your Information", Toast.LENGTH_SHORT)
                             .show()
                     } else {
@@ -164,7 +180,7 @@ class LoginActivity : AppCompatActivity()  {
                         val auth = Firebase.auth
 
 
-                        if (email_list.contains(email)){
+                        if (emailList.contains(email)){
                             Toast.makeText(
                                 baseContext, "Your email already exit",
                                 Toast.LENGTH_SHORT
@@ -233,15 +249,13 @@ class LoginActivity : AppCompatActivity()  {
 
         }
         binding.signupStudent.setOnClickListener{
+            if (isNetworkConnected(this)){
             val builder = AlertDialog.Builder(this,R.style.CustomAlertDialog)
                 .create()
             val view = layoutInflater.inflate(R.layout.admin_register_layout,null)
             // val  button = view.findViewById<Button>(R.id.dialogDismiss_button)
             b=AdminRegisterLayoutBinding.bind(view)
             builder.setView(view)
-            /*    button.setOnClickListener {
-                    builder.dismiss()
-                }*/
             b.closeDialog.setOnClickListener {
                 builder.dismiss()
             }
@@ -249,7 +263,6 @@ class LoginActivity : AppCompatActivity()  {
                 requestPermit()
             }
             b.registerLay.setOnClickListener {
-                //Toast.makeText(this, "${uri}", Toast.LENGTH_SHORT).show()
                 val emailPattern = "(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
                 val role="Student"
                 val email=b.registerEmail.text.toString()
@@ -257,13 +270,16 @@ class LoginActivity : AppCompatActivity()  {
                 val name=b.rName.text.toString()
                 val phone=b.rPhone.text.toString()
                 val degree=b.registerDegree.text.toString()
+                val confirmPassword=b.confirmPassword.text.toString()
                 val camp=""
                 val req=""
                 val noti=""
                 if (password.length<6){
                     Toast.makeText(this, "Password must be 6 digit", Toast.LENGTH_SHORT).show()
+                }else if(password != confirmPassword){
+                    Toast.makeText(this, "Password are not the same", Toast.LENGTH_SHORT).show()
                 }else{
-                    if (name=="" && phone== "" && email == "" && password=="" && degree==""){
+                    if (name=="" || phone== "" || email == "" || degree==""){
                         Toast.makeText(this, "Please Enter Your Information", Toast.LENGTH_SHORT).show()
                     }else {
                         val param = LinearLayout.LayoutParams(
@@ -275,7 +291,7 @@ class LoginActivity : AppCompatActivity()  {
                         b.Register.text = "Registering"
                         b.registerLay.isEnabled = false
 
-                        if (email_list.contains(email)){
+                        if (emailList.contains(email)){
                             Toast.makeText(
                                 baseContext, "Your email already exit",
                                 Toast.LENGTH_SHORT
@@ -290,21 +306,21 @@ class LoginActivity : AppCompatActivity()  {
                                 Mailer.sendMail(
                                     this,
                                     email,
-                                    "IT Visionhub Email Verify",
+                                    "IT VisionHub Email Verify",
                                     "Hi ${name}! Your Verification code is \n : ${code}. \n Thank For Enjoying Us"
                                 )
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(
                                         {
-                                            /*Toast.makeText(
+                                            Toast.makeText(
                                                 this,
                                                 "Mail send check e-mail",
                                                 Toast.LENGTH_SHORT
-                                            ).show()*/
+                                            ).show()
                                         },
                                         {
-                                            Toast.makeText(this, "{${it.message}}", Toast.LENGTH_SHORT)
+                                            Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT)
                                                 .show()
                                         }
                                     )
@@ -336,37 +352,6 @@ class LoginActivity : AppCompatActivity()  {
                             }
                         }
 
-                        /*
-                        val auth = Firebase.auth
-
-                        auth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(this) { task ->
-                                if (task.isSuccessful) {
-
-                                    val imgurl = "hello this is image"
-                                    val user = User(name, phone, email, password, imgurl, role,degree,camp,req,noti)
-                                    if (uri != null) {
-                                        ImageUploadAndDataSave(builder,user)
-                                    }else {
-                                        DataSaveNoImage(builder,user)
-                                    }
-                                    // Sign in success, update UI with the signed-in user's information
-                                    Log.d(TAG, "createUserWithEmail:success")
-
-                                } else {
-                                    // If sign in fails, display a message to the user.
-                                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
-                                    Toast.makeText(
-                                        baseContext, "Your email already exit",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    b.pgb.layoutParams=LinearLayout.LayoutParams(0,0)
-                                    b.pgb.visibility = View.INVISIBLE
-                                    b.Register.text = "SignUp"
-                                    b.registerLay.isEnabled = true
-                                    // updateUI(null)
-                                }
-                            }*/
                     }
                 }
 
@@ -374,48 +359,23 @@ class LoginActivity : AppCompatActivity()  {
             builder.setCanceledOnTouchOutside(false)
             builder.show()
 
+        }else{
+                Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show()
+        }
         }
     }
 
-    private fun CollectUserEmail() {
+    private fun collectUserEmail() {
         val db=Firebase.firestore
         db.collection("users")
             .get()
             .addOnSuccessListener {
                 for (doc in it){
-                    email_list.add(doc["email"].toString())
+                    emailList.add(doc["email"].toString())
                 }
             }
             .addOnFailureListener {
 
-            }
-    }
-
-    private fun DataSaveNoImage(builder: AlertDialog,user: User) {
-        val db = Firebase.firestore
-
-        db.collection("users")
-            .add(user)
-            .addOnSuccessListener { documentReference ->
-
-                StoreInShareUser(user.email,user.password)
-                storeRole(user.role)
-                builder.dismiss()
-                startActivity(Intent(this, MainActivity::class.java))
-                Log.d(
-                    TAG,
-                    "DocumentSnapshot added with ID: ${documentReference.id}"
-                )
-                finish()
-
-            }
-            .addOnFailureListener { e ->
-                Log.w(TAG, "Error adding document", e)
-                b.pgb.layoutParams=LinearLayout.LayoutParams(0,0)
-                b.pgb.visibility = View.INVISIBLE
-                b.Register.text = "SignUp"
-                b.registerLay.isEnabled = true
-                CheckNework()
             }
     }
 
@@ -445,65 +405,26 @@ class LoginActivity : AppCompatActivity()  {
     private fun startImagePick() {
         val intent= Intent(Intent.ACTION_PICK)
         intent.type="image/*"
-        startActivityForResult(Intent.createChooser(intent,"Please Choose Image"),100)
+        //startActivityForResult(Intent.createChooser(intent,"Please Choose Image"),100)
+        activityResult.launch(Intent.createChooser(intent,"Choose Image"))
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode== 100 && resultCode ==Activity.RESULT_OK && data!= null){
-            uri=data.data
-            val inputStr : InputStream? =contentResolver.openInputStream(uri!!)
-            val bitmap =BitmapFactory.decodeStream(inputStr)
-            b.profilePhoto.setImageBitmap(bitmap)
-        }
+    private val activityResult=
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
+           // Toast.makeText(this, "${result.resultCode}", Toast.LENGTH_SHORT).show()
 
-        super.onActivityResult(requestCode, resultCode, data)
-    }
+            if (result.resultCode== RESULT_OK && result.data!= null){
+                //Toast.makeText(this, "$uri", Toast.LENGTH_SHORT).show()
 
-    private fun ImageUploadAndDataSave(builder: AlertDialog,user: User) {
-        val filename = UUID.randomUUID().toString()
-        val ref = FirebaseStorage.getInstance().getReference(("/images/$filename"))
-        ref.putFile(uri!!)
-            .addOnSuccessListener {
-                ref.downloadUrl.addOnSuccessListener {
-                    user.img=it.toString()
-                    val db = Firebase.firestore
-
-                    db.collection("users")
-                        .add(user)
-                        .addOnSuccessListener { documentReference ->
-
-                            StoreInShareUser(user.email,user.password)
-                            storeRole(user.role)
-                            builder.dismiss()
-                            startActivity(Intent(this, MainActivity::class.java))
-                            Log.d(
-                                TAG,
-                                "DocumentSnapshot added with ID: ${documentReference.id}"
-                            )
-                            finish()
-
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w(TAG, "Error adding document", e)
-                            b.pgb.layoutParams=LinearLayout.LayoutParams(0,0)
-                            b.pgb.visibility = View.INVISIBLE
-                            b.Register.text = "SignUp"
-                            b.registerLay.isEnabled = true
-                            CheckNework()
-                        }
+                result.data!!.data.let {
+                    uri=it
+                    val inputStr : InputStream? =contentResolver.openInputStream(uri!!)
+                    val bitmap =BitmapFactory.decodeStream(inputStr)
+                    b.profilePhoto.setImageBitmap(bitmap)
                 }
             }
-            .addOnFailureListener{
-                Toast.makeText(this, "Image Upload Fail ${it.message}", Toast.LENGTH_SHORT).show()
-                b.pgb.layoutParams=LinearLayout.LayoutParams(0,0)
-                b.pgb.visibility = View.INVISIBLE
-                b.Register.text = "SignUp"
-                b.registerLay.isEnabled = true
-                CheckNework()
-            }
+        }
 
-
-    }
 
     private fun storeRole(role: String) {
        // Toast.makeText(this, role, Toast.LENGTH_SHORT).show()
@@ -513,7 +434,7 @@ class LoginActivity : AppCompatActivity()  {
         edt.apply()
     }
 
-    private fun StoreInShareUser(email: String, password: String) {
+    private fun storeInShareUser(email: String, password: String) {
 
         val preferences : SharedPreferences =getSharedPreferences("User",
             MODE_PRIVATE)
@@ -523,29 +444,18 @@ class LoginActivity : AppCompatActivity()  {
         editor.apply()
     }
 
-    private fun CheckNework(){
-        val connectivityManager=this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val wifi=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
-        val mobile=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE)
-
-        if (wifi!!.isConnectedOrConnecting){
-            //binding.loginName.setError("")
-            binding.loginName.error="!"
-            binding.loginPass.error="!"
-            Toast.makeText(
-                baseContext, "Something was wrong",
-                Toast.LENGTH_SHORT
-            ).show()
-        }else if (mobile!!.isConnectedOrConnecting){
-            binding.loginName.error="!"
-            binding.loginPass.error="!"
-            Toast.makeText(
-                baseContext, "Something was wrong",
-                Toast.LENGTH_SHORT
-            ).show()
-        }else{
-            Toast.makeText(this, "No Connection", Toast.LENGTH_SHORT).show()
-        }
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun isNetworkConnected(context: Context): Boolean {
+        //1
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        //2
+        val activeNetwork = connectivityManager.activeNetwork
+        //3
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+        //Toast.makeText(context, networkCapabilities.toString(), Toast.LENGTH_SHORT).show()
+        //4
+        return networkCapabilities != null &&
+                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 }
 

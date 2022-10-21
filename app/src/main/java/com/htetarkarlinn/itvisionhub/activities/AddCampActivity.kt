@@ -1,23 +1,25 @@
-package com.htetarkarlinn.itvisionhub.Activities
+package com.htetarkarlinn.itvisionhub.activities
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
-import androidx.core.net.toUri
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import com.htetarkarlinn.itvisionhub.Models.CampModel
-import com.htetarkarlinn.itvisionhub.Models.User
+import com.htetarkarlinn.itvisionhub.models.CampModel
+import com.htetarkarlinn.itvisionhub.models.User
 import com.htetarkarlinn.itvisionhub.R
 import com.htetarkarlinn.itvisionhub.adapter.StudentInfoAdapter
 import com.htetarkarlinn.itvisionhub.databinding.ActivityAddCampBinding
@@ -28,14 +30,15 @@ import kotlin.collections.ArrayList
 class AddCampActivity : AppCompatActivity() {
     private var images: ArrayList<Uri?>? = null
     private var position = 0
-    private val PICK_IMAGES_CODE = 0
     private lateinit var b : StudentInfoBinding
     private lateinit var binding: ActivityAddCampBinding
     private var start =true
     private var students : MutableList<User> = ArrayList()
     private var end=true
-    private var id_list : MutableList<String> = arrayListOf()
-    private var StudentInfoAdapter: StudentInfoAdapter? = null
+    private var idList : MutableList<String> = arrayListOf()
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=ActivityAddCampBinding.inflate(layoutInflater)
@@ -44,13 +47,13 @@ class AddCampActivity : AppCompatActivity() {
 
         images = ArrayList()
 
-        CollectStudentInfo()
+        collectStudentInfo()
 
         //setup image switcher
         binding.imageSwitch.setFactory { ImageView(applicationContext) }
 
         binding.sPick.setOnClickListener {
-            if (start==true){
+            if (start){
             binding.startDatePicker.visibility= View.VISIBLE
             binding.endPick.visibility=View.INVISIBLE
             binding.sPick.setImageDrawable(getDrawable(R.drawable.drop_up))
@@ -104,40 +107,29 @@ class AddCampActivity : AppCompatActivity() {
         binding.addPhoto.setOnClickListener {
             pickImage()
         }
-        /*binding.stuInfo.setOnClickListener {
-            val name= binding.campName.text.toString()
-                
-                if (students.size == 0) {
-                    Toast.makeText(this, "wait", Toast.LENGTH_SHORT).show()
-                } else {
-                    if (name.equals("")){
-                        Toast.makeText(this, "Enter camp name", Toast.LENGTH_SHORT).show()
-                    }else {
-                        ShowDialog(name)
-                    }
-                }
 
-        }*/
         binding.cancelCamp.setOnClickListener {
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
+
+
         }
         binding.addCamp.setOnClickListener {
-            val camp_name = binding.campName.text.toString()
-            val start_date=binding.sDateTxt.text.toString()
-            val end_date=binding.eDateTxt.text.toString()
+            val campName = binding.campName.text.toString()
+            val startDate=binding.sDateTxt.text.toString()
+            val endDate=binding.eDateTxt.text.toString()
             val time=binding.campTime.text.toString()
             val description=binding.descriptionCamp.text.toString()
-            if (start_date.equals("Select here") && end_date.equals("Select here")){
+            if (startDate == "Select here" && endDate == "Select here"){
                 Toast.makeText(this, "Please enter both of start and end date", Toast.LENGTH_SHORT).show()
             }else{
-                if (camp_name.equals("")&& time.equals("")){
+                if (campName == "" && time == ""){
                     Toast.makeText(this, "Please enter full information", Toast.LENGTH_SHORT).show()
                 }else{
                     binding.addCamp.isEnabled=false
                     binding.addCamp.text="Adding"
                     binding.cancelCamp.isEnabled=false
-                    val camp=CampModel(start_date,end_date,camp_name,time,description,images)
-                    UploadCamptoDatebase(camp)
+                    val camp=CampModel(startDate,endDate,campName,time,description,images)
+                    uploadCampToDatabase(camp)
                 }
             }
 
@@ -145,11 +137,11 @@ class AddCampActivity : AppCompatActivity() {
 
     }
 
-    private fun UploadCamptoDatebase(camp: CampModel) {
+    private fun uploadCampToDatabase(camp: CampModel) {
         val img : ArrayList<Uri?>? = camp.images
-        val img_link : ArrayList<Uri?> = ArrayList()
+        val imgLink : ArrayList<Uri?> = ArrayList()
         if (img?.size==0){
-            UploadData(camp)
+            uploadData(camp)
         }else {
             for (c in img!!) {
                 val filename = UUID.randomUUID().toString()
@@ -157,11 +149,11 @@ class AddCampActivity : AppCompatActivity() {
                 ref.putFile(c!!)
                     .addOnSuccessListener {
                         ref.downloadUrl.addOnSuccessListener {
-                            img_link.add(it)
-                            if (img.size == img_link.size) {
+                            imgLink.add(it)
+                            if (img.size == imgLink.size) {
                                 // Toast.makeText(this, "success", Toast.LENGTH_SHORT).show()
-                                camp.images = img_link
-                                UploadData(camp)
+                                camp.images = imgLink
+                                uploadData(camp)
                             }
                         }
                     }
@@ -170,27 +162,20 @@ class AddCampActivity : AppCompatActivity() {
                     }
             }
         }
-       /* camp.images=img_link
-        if (img.size!=img_link.size){
-            Toast.makeText(this, "wait", Toast.LENGTH_SHORT).show()
-        }else {
-            Toast.makeText(this, img_link.size.toString(), Toast.LENGTH_SHORT).show()
-            UploadData(camp)
-        }*/
     }
 
-    private fun UploadData(camp: CampModel) {
+    private fun uploadData(camp: CampModel) {
         val db = Firebase.firestore
 
         db.collection("camp")
             .add(camp)
-            .addOnSuccessListener { documentReference ->
+            .addOnSuccessListener { _ ->
 
                 Log.d(
                     ContentValues.TAG,
                     "DocumentSnapshot added with ID: ${camp.camp_name}"
                 )
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
 
             }
             .addOnFailureListener { e ->
@@ -199,13 +184,13 @@ class AddCampActivity : AppCompatActivity() {
             }
     }
 
-    private fun CollectStudentInfo() {
+    private fun collectStudentInfo() {
         val db= Firebase.firestore
         db.collection("users")
             .get().addOnSuccessListener {
                 for (doc in it){
-                    if (!doc["role"].toString().equals("Admin")){
-                        id_list.add(doc.id)
+                    if (doc["role"].toString() != "Admin"){
+                        idList.add(doc.id)
                         val user = User(doc["name"].toString(),doc["phone"].toString(),doc["email"].toString(),doc["password"].toString()
                             ,doc["img"].toString(),doc["role"].toString(),doc["degree"].toString(),doc["camp"].toString(),doc["request"].toString(),doc["noti"].toString())
                         // val user : User =doc.toObject(User::class.java)
@@ -219,43 +204,10 @@ class AddCampActivity : AppCompatActivity() {
             }
     }
 
-    private fun ShowDialog(name : String) {
-        val builder =AlertDialog.Builder(this,R.style.CustomAlertDialogTran).create()
-        val view=layoutInflater.inflate(R.layout.student_info,null)
-        b= StudentInfoBinding.bind(view)
-        view.background=getDrawable(R.drawable.transparent_bg)
-        builder.setView(view)
-        builder.setCancelable(false)
-        b.closeDialog.setOnClickListener {
-            students.clear()
-            CollectStudentInfo()
-            builder.dismiss()
-        }
-        ShowRecycler(name)
-        builder.show()
-    }
-
-    private fun ShowRecycler(name : String) {
-        //Toast.makeText(this, "Total Users is ${students.size}", Toast.LENGTH_SHORT).show()
-        val stud : ArrayList<User> = arrayListOf()
-        val id_new_list : MutableList<String> = arrayListOf()
-        for (i in students){
-            if (i.camp.toLowerCase().replace(" ","").equals(name.toLowerCase().replace(" ","")) || i.camp.equals("")){
-               stud.add(i)
-                id_new_list.add(id_list[students.indexOf(i)])
-
-            }
-        }
-        b.recycleStudent.layoutManager=LinearLayoutManager(this)
-        StudentInfoAdapter= StudentInfoAdapter(stud,id_new_list, name,this)
-        b.recycleStudent.adapter=StudentInfoAdapter
-    }
 
     private fun pickImage() {
         val intent= Intent(Intent.EXTRA_ALLOW_MULTIPLE)
         intent.type="image/*"
-        /*intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-        intent.setAction(Intent.ACTION_GET_CONTENT)*/
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,true)
         intent.action= Intent.ACTION_GET_CONTENT
         activityResult.launch(Intent.createChooser(intent,"Choose Image"))
@@ -264,39 +216,39 @@ class AddCampActivity : AppCompatActivity() {
 
         if (result.resultCode== RESULT_OK && result.data!= null){
             images!!.clear()
-            RemoveMove()
+            removeMove()
             binding.previewImg.visibility=View.INVISIBLE
             if (result.data!!.clipData!=null) {
-                ShowMove()
+                showMove()
                 val count = result.data!!.clipData!!.itemCount
                 for (i in 0 until count) {
-                    val image_url = result.data!!.clipData!!.getItemAt(i)
-                    images!!.add(image_url.uri)
+                    val imageUrl = result.data!!.clipData!!.getItemAt(i)
+                    images!!.add(imageUrl.uri)
                 }
                 if (images!!.size!=0)
                 {
-                    ShowMove()
+                    showMove()
 
                 }
                 binding.imageSwitch.setImageURI(images!![0])
                 position=0
             }else{
-                RemoveMove()
-                val imageurl =result.data!!.data
-                images!!.add(imageurl)
-                binding.imageSwitch.setImageURI(imageurl)
+                removeMove()
+                val imageUrl =result.data!!.data
+                images!!.add(imageUrl)
+                binding.imageSwitch.setImageURI(imageUrl)
                 position=0
             }
         }
     }
 
-    private fun RemoveMove() {
+    private fun removeMove() {
 
         binding.moveLeft.visibility=View.INVISIBLE
         binding.moveRight.visibility=View.INVISIBLE
     }
 
-    private fun ShowMove() {
+    private fun showMove() {
         binding.moveLeft.visibility=View.VISIBLE
         binding.moveRight.visibility=View.VISIBLE
     }

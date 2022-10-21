@@ -1,4 +1,4 @@
-package com.htetarkarlinn.itvisionhub.Models
+package com.htetarkarlinn.itvisionhub.models
 
 import java.io.Serializable
 

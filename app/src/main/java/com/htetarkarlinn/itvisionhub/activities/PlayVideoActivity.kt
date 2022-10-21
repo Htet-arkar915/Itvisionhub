@@ -1,8 +1,8 @@
-package com.htetarkarlinn.itvisionhub.Activities
+package com.htetarkarlinn.itvisionhub.activities
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
@@ -15,6 +15,7 @@ import com.htetarkarlinn.itvisionhub.databinding.ActivityPlayVideoBinding
 class PlayVideoActivity : AppCompatActivity() {
     lateinit var binding : ActivityPlayVideoBinding
     var videoId=""
+    @SuppressLint("SetJavaScriptEnabled", "UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=ActivityPlayVideoBinding.inflate(layoutInflater)
@@ -29,13 +30,13 @@ class PlayVideoActivity : AppCompatActivity() {
         binding.videoPlay.settings.javaScriptEnabled=true
         binding.videoPlay.settings.pluginState= WebSettings.PluginState.ON
         binding.videoPlay.background=getDrawable(R.drawable.transparent_bg)
-        if (orientation.equals("Portrait")) {
+        if (orientation == "Portrait") {
             supportActionBar?.show()
             binding.videoPlay.loadData(videoID, "text/html", "utf-8")
         }else{
             supportActionBar?.hide()
             binding.videoPlay.loadData(videoID_Lan, "text/html", "utf-8")
-            window.decorView.systemUiVisibility=View.SYSTEM_UI_FLAG_FULLSCREEN
+            window.decorView.fitsSystemWindows=true
         }
         binding.videoPlay.webChromeClient= WebChromeClient()
     }
@@ -43,7 +44,7 @@ class PlayVideoActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
                 return true
             }
         }

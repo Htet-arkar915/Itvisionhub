@@ -1,24 +1,26 @@
-package com.htetarkarlinn.itvisionhub.Activities
+package com.htetarkarlinn.itvisionhub.activities
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import com.htetarkarlinn.itvisionhub.Models.CampModel
+import com.htetarkarlinn.itvisionhub.models.CampModel
 import com.htetarkarlinn.itvisionhub.R
+import com.htetarkarlinn.itvisionhub.adapter.CampAdapter
 import com.htetarkarlinn.itvisionhub.databinding.ActivityEditCampBinding
 import java.io.InputStream
 import java.util.*
@@ -27,62 +29,67 @@ import kotlin.collections.ArrayList
 class EditCampActivity : AppCompatActivity(){
     var id=""
     var name=""
-    var strt_d=""
-    var end_d=""
+    private var startD=""
+    private var endD=""
     var time=""
-    var des=""
-    var default_img=true
+    private var des=""
+    private var defaultImg=true
     private var position = 0
-    private var pick_position= 0
-    var image_list : MutableList<String> = arrayListOf()
+    private var pickPosition= 0
+    private var imageList : MutableList<String> = arrayListOf()
     private var start =true
     private var end=true
     lateinit var camp: CampModel
     private var images: ArrayList<Uri?>? = arrayListOf()
     private lateinit var binding : ActivityEditCampBinding
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivityEditCampBinding.inflate(layoutInflater)
         setContentView(binding.root)
         id=intent.getStringExtra("id").toString()
-        camp=intent.getSerializableExtra("camp") as CampModel
+        /*val bundle= intent.extras
+        camp= bundle!!.getSerializable("camp",intent. )!!
+        Toast.makeText(this, camp.camp_name, Toast.LENGTH_SHORT).show()*/
+        camp= intent.getSerializableExtra("camp") as CampModel
         //Toast.makeText(this, camp.camp_name, Toast.LENGTH_SHORT).show()
         // binding.imageSwitch.setFactory { ImageView(applicationContext) }
-        image_list=camp.images!! as MutableList<String>
+        imageList=camp.images!! as MutableList<String>
         name=camp.camp_name
-        strt_d=camp.start_date
-        end_d=camp.end_date
+        startD=camp.start_date
+        endD=camp.end_date
         time=camp.time
         des=camp.description
         binding.campName.append(name)
         binding.campTime.append(time)
         binding.descriptionCamp.append(des)
-        binding.sDateTxt.text=strt_d
-        binding.eDateTxt.text=end_d
+        binding.sDateTxt.text=startD
+        binding.eDateTxt.text=endD
 
-        Toast.makeText(this, id, Toast.LENGTH_SHORT).show()
-        if (image_list.size==1){
+        //Toast.makeText(this, id, Toast.LENGTH_SHORT).show()
+        if (imageList.size==1){
             binding.previewImg.visibility=View.INVISIBLE
-            RemoveMove()
-            Glide.with(this).load(image_list[0]).into(binding.imageSwitch)
-        }else if (image_list.size> 0){
-            ShowMove()
+            removeMove()
+            Glide.with(this).load(imageList[0]).into(binding.imageSwitch)
+        }else if (imageList.size> 0){
+            showMove()
             binding.previewImg.visibility=View.INVISIBLE
-            Glide.with(this).load(image_list[0]).into(binding.imageSwitch)
+            Glide.with(this).load(imageList[0]).into(binding.imageSwitch)
         }
 
         binding.moveRight.setOnClickListener {
-            if (default_img){
-                if (position<image_list.size-1){
+            if (defaultImg){
+                if (position<imageList.size-1){
                     position++
-                    Glide.with(this).load(image_list[position]).into(binding.imageSwitch)
+                    Glide.with(this).load(imageList[position]).into(binding.imageSwitch)
                 }else{
                     Toast.makeText(this, "No More Image", Toast.LENGTH_SHORT).show()
                 }
             }else{
-                if (pick_position<images!!.size-1){
-                    pick_position++
-                    val inputStr : InputStream = contentResolver.openInputStream(images!![pick_position].toString().toUri())!!
+                if (pickPosition<images!!.size-1){
+                    pickPosition++
+                    val inputStr : InputStream = contentResolver.openInputStream(images!![pickPosition].toString().toUri())!!
                     val bitmap = BitmapFactory.decodeStream(inputStr)
                     binding.imageSwitch.setImageBitmap(bitmap)
                 }else{
@@ -91,18 +98,18 @@ class EditCampActivity : AppCompatActivity(){
             }
         }
         binding.moveLeft.setOnClickListener {
-            if (default_img){
+            if (defaultImg){
                 if (position>0){
                     position--
-                    Glide.with(this).load(image_list[position]).into(binding.imageSwitch)
+                    Glide.with(this).load(imageList[position]).into(binding.imageSwitch)
                 }else{
                     Toast.makeText(this, "No More image", Toast.LENGTH_SHORT).show()
                 }
             }else{
-                if (pick_position>0) {
-                    pick_position--
+                if (pickPosition>0) {
+                    pickPosition--
                     val inputStr: InputStream =
-                        contentResolver.openInputStream(images!![pick_position].toString().toUri())!!
+                        contentResolver.openInputStream(images!![pickPosition].toString().toUri())!!
                     val bitmap = BitmapFactory.decodeStream(inputStr)
                     binding.imageSwitch.setImageBitmap(bitmap)
                 }else{
@@ -112,7 +119,7 @@ class EditCampActivity : AppCompatActivity(){
         }
 
         binding.sPick.setOnClickListener {
-            if (start==true){
+            if (start){
                 binding.startDatePicker.visibility= View.VISIBLE
                 binding.endPick.visibility= View.INVISIBLE
                 binding.sPick.setImageDrawable(getDrawable(R.drawable.drop_up))
@@ -131,7 +138,7 @@ class EditCampActivity : AppCompatActivity(){
         }
 
         binding.ePick.setOnClickListener {
-            if (end==true) {
+            if (end) {
                 binding.startDatePicker.visibility = View.INVISIBLE
                 binding.sPick.setImageDrawable(getDrawable(R.drawable.drop_down))
                 binding.endPick.visibility = View.VISIBLE
@@ -147,7 +154,7 @@ class EditCampActivity : AppCompatActivity(){
             }
         }
         binding.cancelCamp.setOnClickListener {
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
         }
 
 
@@ -159,26 +166,26 @@ class EditCampActivity : AppCompatActivity(){
             binding.editCamp.text="Editing"
             binding.cancelCamp.isEnabled=false
             name=binding.campName.text.toString()
-            strt_d=binding.sDateTxt.text.toString()
-            end_d=binding.eDateTxt.text.toString()
+            startD=binding.sDateTxt.text.toString()
+            endD=binding.eDateTxt.text.toString()
             time=binding.campTime.text.toString()
             des=binding.descriptionCamp.text.toString()
-            if (default_img){
-                var campModel=CampModel(strt_d,end_d,name,time,des,image_list as ArrayList<Uri?>)
-                UpdateNoImage(campModel)
+            if (defaultImg){
+                val campModel=CampModel(startD,endD,name,time,des,imageList as ArrayList<Uri?>)
+                updateNoImage(campModel)
             }else{
-                var campModel=CampModel(strt_d,end_d,name,time,des,images)
-                UploadCamptoDatebase(campModel)
+                val campModel=CampModel(startD,endD,name,time,des,images)
+                uploadCampToDatabase(campModel)
             }
 
         }
     }
 
-    private fun UploadCamptoDatebase(camp: CampModel) {
+    private fun uploadCampToDatabase(camp: CampModel) {
         val img: ArrayList<Uri?>? = camp.images
-        val img_link: ArrayList<Uri?> = ArrayList()
+        val imgLink: ArrayList<Uri?> = ArrayList()
         if (img?.size == 0) {
-            UploadData(camp)
+            uploadData(camp)
         } else {
             for (c in img!!) {
                 val filename = UUID.randomUUID().toString()
@@ -186,11 +193,11 @@ class EditCampActivity : AppCompatActivity(){
                 ref.putFile(c!!)
                     .addOnSuccessListener {
                         ref.downloadUrl.addOnSuccessListener {
-                            img_link.add(it)
-                            if (img.size == img_link.size) {
+                            imgLink.add(it)
+                            if (img.size == imgLink.size) {
                                 // Toast.makeText(this, "success", Toast.LENGTH_SHORT).show()
-                                camp.images = img_link
-                                UploadData(camp)
+                                camp.images = imgLink
+                                uploadData(camp)
                             }
                         }
                     }
@@ -200,7 +207,7 @@ class EditCampActivity : AppCompatActivity(){
             }
         }
     }
-    private fun UploadData(camp: CampModel) {
+    private fun uploadData(camp: CampModel) {
         val db = Firebase.firestore
 
         db.collection("camp")
@@ -212,7 +219,7 @@ class EditCampActivity : AppCompatActivity(){
                     ContentValues.TAG,
                     "DocumentSnapshot added with ID: ${camp.camp_name}"
                 )
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
 
             }
             .addOnFailureListener { e ->
@@ -221,13 +228,13 @@ class EditCampActivity : AppCompatActivity(){
             }
     }
 
-    private fun UpdateNoImage(campModel: CampModel) {
+    private fun updateNoImage(campModel: CampModel) {
         val db=Firebase.firestore
         db.collection("camp")
             .document(id)
             .set(campModel)
             .addOnSuccessListener {
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
             }
             .addOnFailureListener {
 
@@ -248,49 +255,49 @@ class EditCampActivity : AppCompatActivity(){
     private val activityResult=registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
 
         if (result.resultCode== RESULT_OK && result.data!= null){
-            default_img=false
+            defaultImg=false
             if (images!!.size!=0){
                 images!!.clear()
             }
 
-            RemoveMove()
+            removeMove()
             binding.previewImg.visibility=View.INVISIBLE
             if (result.data!!.clipData!=null) {
-                ShowMove()
+                showMove()
                 val count = result.data!!.clipData!!.itemCount
                 for (i in 0 until count) {
-                    val image_url = result.data!!.clipData!!.getItemAt(i)
-                    images!!.add(image_url.uri)
+                    val imgUrl = result.data!!.clipData!!.getItemAt(i)
+                    images!!.add(imgUrl.uri)
                 }
                 if (images!!.size!=0)
                 {
-                    ShowMove()
+                    showMove()
 
                 }
                 val inputStr : InputStream = contentResolver.openInputStream(images!![0].toString().toUri())!!
                 val bitmap = BitmapFactory.decodeStream(inputStr)
                 binding.imageSwitch.setImageBitmap(bitmap)
-                pick_position=0
+                pickPosition=0
                 // position=0
             }else{
-                RemoveMove()
-                val imageurl =result.data!!.data
-                images!!.add(imageurl)
-                val inputstr : InputStream? =contentResolver.openInputStream(imageurl!!)
-                val bitmap=BitmapFactory.decodeStream(inputstr)
+                removeMove()
+                val imageUrl =result.data!!.data
+                images!!.add(imageUrl)
+                val inputStr : InputStream? =contentResolver.openInputStream(imageUrl!!)
+                val bitmap=BitmapFactory.decodeStream(inputStr)
                 binding.imageSwitch.setImageBitmap(bitmap)
-                pick_position=0
+                pickPosition=0
             }
         }
     }
 
-    private fun RemoveMove() {
+    private fun removeMove() {
 
         binding.moveLeft.visibility=View.INVISIBLE
         binding.moveRight.visibility=View.INVISIBLE
     }
 
-    private fun ShowMove() {
+    private fun showMove() {
         binding.moveLeft.visibility=View.VISIBLE
         binding.moveRight.visibility=View.VISIBLE
     }

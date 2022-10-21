@@ -1,31 +1,23 @@
 package com.htetarkarlinn.itvisionhub.adapter
 
-import android.app.Activity
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.inflate
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.databinding.DataBindingUtil.inflate
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.htetarkarlinn.itvisionhub.Models.AddClass
+import com.htetarkarlinn.itvisionhub.models.AddClass
 import com.htetarkarlinn.itvisionhub.R
-import com.htetarkarlinn.itvisionhub.databinding.ActivityLoginBinding.inflate
 import com.htetarkarlinn.itvisionhub.databinding.AddPostBinding
 import com.htetarkarlinn.itvisionhub.databinding.ClassCustomBinding
 import com.squareup.picasso.Picasso
-import java.sql.Time
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -204,6 +196,7 @@ class ClassAdapter(val classList: MutableList<AddClass>, val activity: FragmentA
             }
         }*/
 
+        @SuppressLint("SimpleDateFormat")
         private fun getCurrentDate(): String {
             val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
             return sdf.format(Date())
@@ -218,7 +211,7 @@ class ClassAdapter(val classList: MutableList<AddClass>, val activity: FragmentA
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        classList?.get(position).let {
+        classList[position].let {
             holder.bind(holder.binding, it,r)
         }
     }

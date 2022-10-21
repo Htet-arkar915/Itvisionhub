@@ -9,8 +9,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.htetarkarlinn.itvisionhub.Activities.AddCampActivity
-import com.htetarkarlinn.itvisionhub.Models.User
+import com.htetarkarlinn.itvisionhub.models.User
 import com.htetarkarlinn.itvisionhub.R
 import com.htetarkarlinn.itvisionhub.databinding.StudentAddRemoveBinding
 import com.squareup.picasso.Picasso
@@ -28,18 +27,18 @@ class StudentInfoAdapter(val students : MutableList<User>,val id_list: MutableLi
             it?.password.toString(),it?.img.toString(),it?.role.toString(),it?.degree.toString(),camp_name,it?.request.toString(),it?.noti.toString())
             val stu_remove=User(it?.name.toString(),it?.phone.toString(),it?.email.toString(),
                 it?.password.toString(),it?.img.toString(),it?.role.toString(),it?.degree.toString(),"","","")
-            val first_camp_name=camp_name.replace(" ","").toLowerCase()
-            val second_camp_name=it?.camp.toString().replace(" ","").toLowerCase()
+            val first_camp_name=camp_name.replace(" ","").lowercase()
+            val second_camp_name=it?.camp.toString().replace(" ","").lowercase()
             if (first_camp_name.equals(second_camp_name)){
                 binding.addRemoveBtn.text="Remove"
                 binding.addRemoveBtn.setTextColor(Color.RED)
                 check= false
             }
             binding.addRemoveBtn.setOnClickListener {
-                if (check==true){
+                if (check){
                     binding.addRemoveBtn.text="Remove"
                     binding.addRemoveBtn.setTextColor(Color.RED)
-                    AddStudent(doc,stu)
+                    AddStudent(doc,stu,camp_name)
                     check=false
                 }else{
                     binding.addRemoveBtn.text="Accept"
@@ -55,7 +54,7 @@ class StudentInfoAdapter(val students : MutableList<User>,val id_list: MutableLi
             val db=Firebase.firestore
             db.collection("users")
                 .document(doc!!)
-                .set(stuRemove!!)
+                .update("camp","","request","")
                 .addOnSuccessListener {
                     Toast.makeText(itemView.context, "Removed", Toast.LENGTH_SHORT).show()
                 }
@@ -64,12 +63,12 @@ class StudentInfoAdapter(val students : MutableList<User>,val id_list: MutableLi
                 }
         }
 
-        private fun AddStudent(d: String?, stu: User?) {
+        private fun AddStudent(d: String?, stu: User?,camp_name: String) {
             
             val db=Firebase.firestore
             db.collection("users")
                 .document(d!!)
-                .set(stu!!)
+                .update("camp",camp_name,"request",camp_name)
                 .addOnSuccessListener {
                     Toast.makeText(itemView.context, "Added", Toast.LENGTH_SHORT).show()
                 }
@@ -85,7 +84,7 @@ class StudentInfoAdapter(val students : MutableList<User>,val id_list: MutableLi
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        students?.get(position).let { holder.bind(holder.binding,it,id_list[position],camp_name) }
+        students[position].let { holder.bind(holder.binding,it,id_list[position],camp_name) }
     }
 
     override fun getItemCount(): Int {

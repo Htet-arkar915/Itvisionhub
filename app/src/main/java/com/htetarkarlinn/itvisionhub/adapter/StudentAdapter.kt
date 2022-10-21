@@ -7,14 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.htetarkarlinn.itvisionhub.Activities.StudentRemainder
-import com.htetarkarlinn.itvisionhub.Models.User
+import com.htetarkarlinn.itvisionhub.activities.StudentRemainder
+import com.htetarkarlinn.itvisionhub.models.User
 import com.htetarkarlinn.itvisionhub.R
-import com.htetarkarlinn.itvisionhub.databinding.StudentInfoBinding
 import com.htetarkarlinn.itvisionhub.databinding.UserCustomBinding
 import com.htetarkarlinn.itvisionhub.databinding.UserDetailBinding
 import com.squareup.picasso.Picasso
@@ -100,7 +98,7 @@ class StudentAdapter(val userList: MutableList<User>,val activity: FragmentActiv
         return MyViewHolder(view)*/
     }
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        userList?.get(position).let { holder.bind(holder.binding,it) }
+        userList[position].let { holder.bind(holder.binding,it) }
     }
     override fun getItemCount(): Int {
         return userList.size

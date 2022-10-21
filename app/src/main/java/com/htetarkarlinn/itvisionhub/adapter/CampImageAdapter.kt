@@ -12,7 +12,7 @@ import com.htetarkarlinn.itvisionhub.R
 import com.htetarkarlinn.itvisionhub.databinding.ShowImageBinding
 import com.squareup.picasso.Picasso
 
-class CampImageAdapter(val context: Context,val imageList: MutableList<Uri>): RecyclerView.Adapter<CampImageAdapter.myViewHolder>() {
+class CampImageAdapter(val context: Context, private val imageList: MutableList<Uri>): RecyclerView.Adapter<CampImageAdapter.myViewHolder>() {
     class myViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val binding= ShowImageBinding.bind(view)
         // val binding : ShowImageBinding.bind(view)
@@ -29,7 +29,7 @@ class CampImageAdapter(val context: Context,val imageList: MutableList<Uri>): Re
     }
 
     override fun onBindViewHolder(holder: myViewHolder, position: Int) {
-        imageList?.get(position).let { holder.bind(holder.binding,it) }
+        imageList[position].let { holder.bind(holder.binding,it) }
     }
 
     override fun getItemCount(): Int {

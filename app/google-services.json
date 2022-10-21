@@ -1,33 +1,41 @@
 {
   "project_info": {
-    "project_number": "366935730142",
-    "project_id": "itvisionhub-6346c",
-    "storage_bucket": "itvisionhub-6346c.appspot.com"
+    "project_number": "706309982270",
+    "project_id": "itvisionhub",
+    "storage_bucket": "itvisionhub.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:366935730142:android:6e41c8b135f1f6fcab9f4f",
+        "mobilesdk_app_id": "1:706309982270:android:870234518998bed2e5a96f",
         "android_client_info": {
           "package_name": "com.htetarkarlinn.itvisionhub"
         }
       },
       "oauth_client": [
         {
-          "client_id": "366935730142-jnubj8bb79tis8tdnc1rj15vrkvl8ijs.apps.googleusercontent.com",
+          "client_id": "706309982270-lloh35gkg7g503aqovg0h9pl8m31nsq7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.htetarkarlinn.itvisionhub",
+            "certificate_hash": "8ae4801af51121e1f0de9aa40dffc392b2f9e2f5"
+          }
+        },
+        {
+          "client_id": "706309982270-eln1dfodf5tg919o9ld9857u50cheac2.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD0nmjz3a60OimC5BoxTBMG61nbE_pug8o"
+          "current_key": "AIzaSyCQg9limWy0kPQuhl6_3nhFMmnMfxzpiSU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "366935730142-jnubj8bb79tis8tdnc1rj15vrkvl8ijs.apps.googleusercontent.com",
+              "client_id": "706309982270-eln1dfodf5tg919o9ld9857u50cheac2.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

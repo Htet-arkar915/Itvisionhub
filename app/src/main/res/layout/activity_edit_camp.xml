@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFF"
-    tools:context=".Activities.EditCampActivity">
+    tools:context=".activities.EditCampActivity">
 
     <ImageView
         android:id="@+id/image_switch"

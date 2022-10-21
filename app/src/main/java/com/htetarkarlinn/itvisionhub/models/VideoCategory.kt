@@ -1,10 +1,10 @@
-package com.htetarkarlinn.itvisionhub.Models
+package com.htetarkarlinn.itvisionhub.models
 
 import android.os.Parcelable
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
-import java.io.Serializable
+
 @Keep
 @Parcelize
 data class VideoCategory(

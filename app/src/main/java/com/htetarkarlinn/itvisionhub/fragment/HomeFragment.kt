@@ -1,78 +1,59 @@
-package com.htetarkarlinn.itvisionhub.Fragment
+package com.htetarkarlinn.itvisionhub.fragment
 
+import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import android.graphics.Color
-import android.graphics.ColorFilter
-import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.appbar.AppBarLayout
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
-import com.htetarkarlinn.itvisionhub.Models.VideoCategory
-import com.htetarkarlinn.itvisionhub.Models.VideoModel
+import com.htetarkarlinn.itvisionhub.models.VideoCategory
+import com.htetarkarlinn.itvisionhub.models.VideoModel
 import com.htetarkarlinn.itvisionhub.R
+import com.htetarkarlinn.itvisionhub.`object`.Config
 import com.htetarkarlinn.itvisionhub.adapter.VideoCategoryAdapter
 import com.htetarkarlinn.itvisionhub.databinding.AddVideoCategoryBinding
 import com.htetarkarlinn.itvisionhub.databinding.FragmentHomeBinding
-import com.htetarkarlinn.itvisionhub.Fragment.HomeViewModel as HomeViewModel1
+import com.htetarkarlinn.itvisionhub.fragment.HomeViewModel as HomeViewModel1
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class HomeFragment : Fragment() {
 
-   // private lateinit var notificationsViewModel: NotificationsViewModel
     private lateinit var homeViewModel: HomeViewModel1
     private var _binding :FragmentHomeBinding? = null
     private val binding get() = _binding!!
     var role=""
     var camp=""
-    var search=true
     var catIdList : ArrayList<String> = arrayListOf()
-    var filter_catIdList : ArrayList<String> = arrayListOf()
+    var filterCatIdList : ArrayList<String> = arrayListOf()
     private var videoCategoryAdapter : VideoCategoryAdapter?=null
     val videoCategory: ArrayList<VideoCategory> = arrayListOf()
-    val filter_videoCategory: ArrayList<VideoCategory> = arrayListOf()
+    val filterVideoCategory: ArrayList<VideoCategory> = arrayListOf()
+    @RequiresApi(Build.VERSION_CODES.M)
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel1::class.java)
+            ViewModelProvider(this)[HomeViewModel1::class.java]
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root=binding.root
-        val d = Log.d("HH", "HH")
-        //binding.imgSlider.adapter= SliderAdapter()
-        /*val textView: TextView = binding.textf
-        homeViewModel.text.observe(viewLifecycleOwner, Observer{
-            textView.text = it
-        })*/
-        //this.activity?.actionBar?.title="ITVisionhub"
-       // this.activity?.setActionBar(binding.collapsLayout)
-        val prefer : SharedPreferences =this.activity!!.getSharedPreferences("Role", AppCompatActivity.MODE_PRIVATE)
+        Log.d("HH", "HH")
+        val prefer : SharedPreferences =this.requireActivity().getSharedPreferences("Role", AppCompatActivity.MODE_PRIVATE)
         role=prefer.getString("role","string").toString()
         camp=prefer.getString("camp","string").toString()
         videoCategory.clear()
-        CollectCategory(binding)
+        collectCategory(binding)
         binding.collapsLayout.title="ITVision Hub"
 
         /*if (binding.collapsLayout.title.toString().equals("Videos Categories")){
@@ -82,7 +63,7 @@ class HomeFragment : Fragment() {
             showAddCategoryDialog(binding)
         }
 
-        binding.searchView.layoutParams= Toolbar.LayoutParams(Gravity.RIGHT)
+        binding.searchView.layoutParams= Toolbar.LayoutParams(Gravity.END)
         binding.searchView.queryHint="Search category"
         
         binding.searchView.setOnSearchClickListener {
@@ -97,39 +78,38 @@ class HomeFragment : Fragment() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 for (category in videoCategory){
                     if (category.name.equals(query)){
-                        filter_videoCategory.add(category)
-                        filter_catIdList.add(catIdList[videoCategory.indexOf(category)])
+                        filterVideoCategory.add(category)
+                        filterCatIdList.add(catIdList[videoCategory.indexOf(category)])
                     }
                 }
                 binding.videoRecycler.layoutManager=GridLayoutManager(activity,2)
-                videoCategoryAdapter= VideoCategoryAdapter(activity,filter_videoCategory,filter_catIdList,role,camp)
+                videoCategoryAdapter= VideoCategoryAdapter(activity,filterVideoCategory,filterCatIdList,role,camp)
                 binding.videoRecycler.adapter=videoCategoryAdapter
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                filter_catIdList.clear()
-                filter_videoCategory.clear()
+                filterCatIdList.clear()
+                filterVideoCategory.clear()
                for (category in videoCategory){
                    if (category.name!!.lowercase().contains(newText!!.lowercase())){
-                       filter_videoCategory.add(category)
-                       filter_catIdList.add(catIdList[videoCategory.indexOf(category)])
+                       filterVideoCategory.add(category)
+                       filterCatIdList.add(catIdList[videoCategory.indexOf(category)])
                        }
                }
                 binding.videoRecycler.layoutManager=GridLayoutManager(activity,2)
-                videoCategoryAdapter= VideoCategoryAdapter(activity,filter_videoCategory,filter_catIdList,role,camp)
+                videoCategoryAdapter= VideoCategoryAdapter(activity,filterVideoCategory,filterCatIdList,role,camp)
                 binding.videoRecycler.adapter=videoCategoryAdapter
                 return true
             }
 
         })
 
-        binding.appbar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+        binding.appbar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
             if (verticalOffset==0){
                 binding.searchView.visibility=View.VISIBLE
-               // binding.collapsLayout.createContextMenu(inflater.(R.menu.search_menu))
                 binding.collapsLayout.title="ITVision Hub"
-                if (!role.equals("Admin")){
+                if (role != "Admin"){
                     binding.floatBtn.visibility=View.INVISIBLE
                 }else {
                     binding.floatBtn.visibility = View.VISIBLE
@@ -145,31 +125,38 @@ class HomeFragment : Fragment() {
 
     }
 
-    private fun CollectCategory(b: FragmentHomeBinding) {
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun collectCategory(b: FragmentHomeBinding) {
        // var videoList : MutableList<VideoModel> = arrayListOf()
-        catIdList.clear()
-        videoCategory.clear()
-        val db=Firebase.firestore
-        db.collection("Video")
-            .get().addOnSuccessListener {
-                for (doc in it){
-                    catIdList.add(doc.id)
-                   // val category=VideoCategory(doc["name"].toString(),doc["forShow"].toString(),doc["videoList"] as ArrayList<VideoModel>? /* = java.util.ArrayList<com.htetarkarlinn.itvisionhub.Models.VideoModel> */)
-                    val category=doc.toObject(VideoCategory::class.java)
-                    videoCategory.add(category)
-                    // videoList =doc.data.getValue("videoList") as MutableList<VideoModel>
+        if (!Config.isNetworkConnected(this.requireActivity())){
+            Toast.makeText(this.requireActivity(), "No Internet Connection", Toast.LENGTH_SHORT).show()
+        }else {
+            catIdList.clear()
+            videoCategory.clear()
+            val db = Firebase.firestore
+            db.collection("Video")
+                .get().addOnSuccessListener {
+                    for (doc in it) {
+                        catIdList.add(doc.id)
+                        // val category=VideoCategory(doc["name"].toString(),doc["forShow"].toString(),doc["videoList"] as ArrayList<VideoModel>? /* = java.util.ArrayList<com.htetarkarlinn.itvisionhub.Models.VideoModel> */)
+                        val category = doc.toObject(VideoCategory::class.java)
+                        videoCategory.add(category)
+                        // videoList =doc.data.getValue("videoList") as MutableList<VideoModel>
+
+                    }
+                    // Toast.makeText(this.activity, "${videoList[0]!!.videoId}", Toast.LENGTH_SHORT).show()
+                    b.pg.visibility = View.INVISIBLE
+                    showRecycle(b)
+                }
+                .addOnFailureListener {
 
                 }
-               // Toast.makeText(this.activity, "${videoList[0]!!.videoId}", Toast.LENGTH_SHORT).show()
-                showRecycle(b)
-            }
-            .addOnFailureListener {
-
-            }
+        }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun showAddCategoryDialog(fb: FragmentHomeBinding) {
-        var builder=AlertDialog.Builder(this.activity!!, R.style.CustomAlertDialog).create()
+        val builder=AlertDialog.Builder(this.requireActivity(), R.style.CustomAlertDialog).create()
         val view=layoutInflater.inflate(R.layout.add_video_category,null)
         val b=AddVideoCategoryBinding.bind(view)
         builder.setView(view)
@@ -178,9 +165,9 @@ class HomeFragment : Fragment() {
             builder.dismiss()
         }
         b.btnAdd.setOnClickListener {
-            var category = b.cateName.text.toString()
+            val category = b.cateName.text.toString()
             var forShow = ""
-            if (category.equals("")) {
+            if (category == "") {
                 Toast.makeText(this.activity, "Enter category", Toast.LENGTH_SHORT).show()
             } else {
                 if (b.btnPublic.isChecked) {
@@ -202,18 +189,19 @@ class HomeFragment : Fragment() {
         builder.show()
     }
 
-    private fun Storecategory(fb : FragmentHomeBinding,b: AddVideoCategoryBinding ,builder: AlertDialog,category: String, forShow: String) {
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun Storecategory(fb : FragmentHomeBinding, b: AddVideoCategoryBinding, builder: AlertDialog, category: String, forShow: String) {
         b.btnCancel.isEnabled=false
         b.btnAdd.text="Adding"
         b.btnAdd.isEnabled=false
-        var videoList : ArrayList<VideoModel>? = arrayListOf()
-        var cate=VideoCategory(category,forShow,videoList)
+        val videoList : ArrayList<VideoModel> = arrayListOf()
+        val cate=VideoCategory(category,forShow,videoList)
         val db=Firebase.firestore
         db.collection("Video")
             .add(cate)
             .addOnSuccessListener {
                 builder.dismiss()
-                CollectCategory(fb)
+                collectCategory(fb)
             }
             .addOnFailureListener {
                 b.btnCancel.isEnabled=true

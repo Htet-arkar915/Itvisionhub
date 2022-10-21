@@ -1,4 +1,4 @@
-package com.htetarkarlinn.itvisionhub.Activities
+package com.htetarkarlinn.itvisionhub.activities
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
@@ -7,26 +7,24 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
+import android.os.*
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.os.CountDownTimer
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.htetarkarlinn.itvisionhub.MainActivity
-import com.htetarkarlinn.itvisionhub.Models.CampModel
-import com.htetarkarlinn.itvisionhub.Models.User
-import com.htetarkarlinn.itvisionhub.Models.VeryfyUser
+import com.htetarkarlinn.itvisionhub.models.User
+import com.htetarkarlinn.itvisionhub.models.VeryfyUser
 import com.htetarkarlinn.itvisionhub.R
 import com.htetarkarlinn.itvisionhub.`object`.Mailer
 import com.htetarkarlinn.itvisionhub.databinding.ActivityVerifyEmailBinding
@@ -38,11 +36,14 @@ import java.util.*
 class VerifyEmailActivity : AppCompatActivity() {
     private lateinit var binding :ActivityVerifyEmailBinding
     lateinit var user: User
-    var code=0
+
     var img : Uri? =null
     var enterCode=""
     var verifyId=""
+    var code=0
     lateinit var timer: CountDownTimer
+    @SuppressLint("CheckResult")
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivityVerifyEmailBinding.inflate(layoutInflater)
@@ -51,6 +52,7 @@ class VerifyEmailActivity : AppCompatActivity() {
         user=intent.getSerializableExtra("user") as User
         code=intent.getIntExtra("code",1)
         img= intent.getStringExtra("img")?.toUri()
+       // Toast.makeText(this, img.toString(), Toast.LENGTH_SHORT).show()
         binding.email.text=user.email
         val dbFb =Firebase.firestore
         val verifyUser=VeryfyUser(user.email,getCurrentDate())
@@ -63,6 +65,7 @@ class VerifyEmailActivity : AppCompatActivity() {
                 Log.d("FF",it.message.toString())
             }
         timer = object:CountDownTimer(180000,1000){
+            @SuppressLint("SetTextI18n")
             override fun onTick(millisUntilFinished: Long) {
                 binding.count.text="Time remaining "+(millisUntilFinished/1000)/60 + ":" + (millisUntilFinished/1000)%60
             }
@@ -79,6 +82,7 @@ class VerifyEmailActivity : AppCompatActivity() {
             timer.start()
             binding.resend.isEnabled=false
             binding.resend.setTextColor(getColor(R.color.colorPrimary))
+            binding.count.visibility=View.VISIBLE
             code = (100000..999999).shuffled().last()
             Mailer.sendMail(
                 this,
@@ -105,7 +109,7 @@ class VerifyEmailActivity : AppCompatActivity() {
         binding.verifyLayout.setOnClickListener {
             //Toast.makeText(this, "${img}", Toast.LENGTH_SHORT).show()
             enterCode=binding.enterCode.text.toString()
-            if (enterCode.equals("")&&enterCode.length<6) {
+            if (enterCode == "" && enterCode.length<6) {
                /* Handler(Looper.getMainLooper()).postDelayed({
                                                             Mailer.sendMail(this,user.email,"Testing","No Code Click")
                 },10000)*/
@@ -120,27 +124,34 @@ class VerifyEmailActivity : AppCompatActivity() {
             binding.verifyBtn.text = "Verifying"
             binding.verifyLayout.isEnabled = false
             if (enterCode.toInt()==code) {
-                
-                val auth=Firebase.auth
-                auth.createUserWithEmailAndPassword(user.email,user.password)
-                    .addOnCompleteListener { 
-                        if (it.isSuccessful){
 
-                            if (!img.toString().equals("null")){
-                                ImageUploadAndDataSave(user)
+                if (!isNetworkConnected(this)){
+                    Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show()
+                }else {
+                    val auth = Firebase.auth
+                    auth.createUserWithEmailAndPassword(user.email, user.password)
+                        .addOnCompleteListener {
+                            if (it.isSuccessful) {
 
-                            }else{
-                                DataSaveNoImage(user)
+                                if (img.toString() == "null") {
+                                    dataSaveNoImage(user)
+                                    // imageUploadAndDataSave(user)
+
+                                } else {
+                                    imageUploadAndDataSave(user)
+                                    //Toast.makeText(this, img.toString(), Toast.LENGTH_SHORT).show()
+
+                                }
+                            } else {
+                                Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
+                                binding.progressBar.layoutParams = LinearLayout.LayoutParams(0, 0)
+                                binding.progressBar.visibility = View.INVISIBLE
+                                binding.verifyBtn.text = "Verify"
+                                binding.verifyLayout.isEnabled = true
+
                             }
-                        }else{
-                            binding.progressBar.layoutParams = LinearLayout.LayoutParams(0,0)
-                            binding.progressBar.visibility = View.INVISIBLE
-                            binding.verifyBtn.text = "Verify"
-                            binding.verifyLayout.isEnabled = true
-
-                            CheckNework()
                         }
-                    }
+                }
                
             }else{
                 Toast.makeText(this, "Code invalid", Toast.LENGTH_SHORT).show()
@@ -155,68 +166,79 @@ class VerifyEmailActivity : AppCompatActivity() {
 
     }
 
-    private fun ImageUploadAndDataSave(user: User) {
-        val filename = UUID.randomUUID().toString()
-        val ref = FirebaseStorage.getInstance().getReference(("/images/$filename"))
-        ref.putFile(img!!)
-            .addOnSuccessListener {
-                ref.downloadUrl.addOnSuccessListener {
-                    user.img=it.toString()
-                    val db = Firebase.firestore
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun imageUploadAndDataSave(user: User) {
+       // Toast.makeText(this, "ImageUpload", Toast.LENGTH_SHORT).show()
+        if (!isNetworkConnected(this)){
+            Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show()
+        }else {
+            val filename = UUID.randomUUID().toString()
+            val ref = FirebaseStorage.getInstance().getReference(("/images/$filename"))
+            ref.putFile(img!!)
+                .addOnSuccessListener {
 
-                    db.collection("users")
-                        .add(user)
-                        .addOnSuccessListener { documentReference ->
+                    ref.downloadUrl.addOnSuccessListener {
+                        user.img = it.toString()
+                        val db = Firebase.firestore
 
-                            StoreInShareUser(user.email,user.password)
-                            storeRole(user.role)
-                            DeleteVerify(verifyId)
+                        db.collection("users")
+                            .add(user)
+                            .addOnSuccessListener { documentReference ->
 
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w(ContentValues.TAG, "Error adding document", e)
-                            binding.progressBar.layoutParams = LinearLayout.LayoutParams(0,0)
-                            binding.progressBar.visibility = View.INVISIBLE
-                            binding.verifyBtn.text = "Verify"
-                            binding.verifyLayout.isEnabled = true
-                            CheckNework()
-                        }
+                                StoreInShareUser(user.email, user.password)
+                                storeRole(user.role)
+                                deleteVerify(verifyId)
+
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w(ContentValues.TAG, "Error adding document", e)
+                                binding.progressBar.layoutParams = LinearLayout.LayoutParams(0, 0)
+                                binding.progressBar.visibility = View.INVISIBLE
+                                binding.verifyBtn.text = "Verify"
+                                binding.verifyLayout.isEnabled = true
+                            }
+                    }
                 }
-            }
-            .addOnFailureListener{
-                binding.progressBar.layoutParams = LinearLayout.LayoutParams(0,0)
-                binding.progressBar.visibility = View.INVISIBLE
-                binding.verifyBtn.text = "Verify"
-                binding.verifyLayout.isEnabled = true
-                CheckNework()
-            }
-
+                .addOnFailureListener {
+                    Log.d("TAG", "imageUploadAndDataSave: " + it.toString())
+                    Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
+                    binding.progressBar.layoutParams = LinearLayout.LayoutParams(0, 0)
+                    binding.progressBar.visibility = View.INVISIBLE
+                    binding.verifyBtn.text = "Verify"
+                    binding.verifyLayout.isEnabled = true
+                }
+        }
     }
 
-    private fun DataSaveNoImage(user: User) {
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun dataSaveNoImage(user: User) {
         val db = Firebase.firestore
+        if (!isNetworkConnected(this)){
+            Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show()
+        }else {
 
-        db.collection("users")
-            .add(user)
-            .addOnSuccessListener { documentReference ->
+            db.collection("users")
+                .add(user)
+                .addOnSuccessListener { documentReference ->
 
-                StoreInShareUser(user.email,user.password)
-                storeRole(user.role)
-                DeleteVerify(verifyId)
+                    StoreInShareUser(user.email, user.password)
+                    storeRole(user.role)
+                    deleteVerify(verifyId)
 
-            }
-            .addOnFailureListener { e ->
-                Log.w(ContentValues.TAG, "Error adding document", e)
-                binding.progressBar.layoutParams = LinearLayout.LayoutParams(0,0)
-                binding.progressBar.visibility = View.INVISIBLE
-                binding.verifyBtn.text = "Verify"
-                binding.verifyLayout.isEnabled = true
-                Toast.makeText(this, "fail", Toast.LENGTH_SHORT).show()
-                CheckNework()
-            }
+                }
+                .addOnFailureListener { e ->
+                    Log.w(ContentValues.TAG, "Error adding document", e)
+                    binding.progressBar.layoutParams = LinearLayout.LayoutParams(0, 0)
+                    binding.progressBar.visibility = View.INVISIBLE
+                    binding.verifyBtn.text = "Verify"
+                    binding.verifyLayout.isEnabled = true
+                    Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show()
+
+                }
+        }
     }
 
-    private fun CheckNework() {
+    /*private fun checkNetwork() {
         val connectivityManager=this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val wifi=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
         val mobile=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE)
@@ -227,6 +249,19 @@ class VerifyEmailActivity : AppCompatActivity() {
         }else{
             Toast.makeText(this, "No Connection", Toast.LENGTH_SHORT).show()
         }
+    }*/
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun isNetworkConnected(context: Context): Boolean {
+        //1
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        //2
+        val activeNetwork = connectivityManager.activeNetwork
+        //3
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+        Toast.makeText(context, networkCapabilities.toString(), Toast.LENGTH_SHORT).show()
+        //4
+        return networkCapabilities != null &&
+                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     private fun storeRole(role: String) {
@@ -248,7 +283,7 @@ class VerifyEmailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
                 return true
             }
         }
@@ -259,10 +294,10 @@ class VerifyEmailActivity : AppCompatActivity() {
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
         return sdf.format(Date())
     }
-    private fun DeleteVerify(userId : String){
+    private fun deleteVerify(userId : String){
         val fb=Firebase.firestore
         fb.collection("VerifyUser")
-            .document(userId)
+            .document(verifyId)
             .delete()
             .addOnSuccessListener {
                 startActivity(Intent(this, MainActivity::class.java))

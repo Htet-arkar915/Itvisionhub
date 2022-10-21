@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.ShowActivity">
+    tools:context=".activities.ShowActivity">
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/video_recycle"
         android:layout_width="wrap_content"

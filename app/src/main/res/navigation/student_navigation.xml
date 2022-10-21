@@ -6,17 +6,17 @@
     app:startDestination="@id/nav_home">
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.htetarkarlinn.itvisionhub.Fragment.HomeFragment"
+        android:name="com.htetarkarlinn.itvisionhub.fragment.HomeFragment"
         android:label="@string/home"
         tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/nav_class"
-        android:name="com.htetarkarlinn.itvisionhub.Fragment.ClassFragment"
+        android:name="com.htetarkarlinn.itvisionhub.fragment.ClassFragment"
         android:label="@string/class_l"
         tools:layout="@layout/fragment_class" />
     <fragment
         android:id="@+id/nav_profile"
-        android:name="com.htetarkarlinn.itvisionhub.Fragment.ProfileFragment"
+        android:name="com.htetarkarlinn.itvisionhub.fragment.ProfileFragment"
         android:label="@string/profile"
         tools:layout="@layout/fragment_profile" />
 
